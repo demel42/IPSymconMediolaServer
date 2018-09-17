@@ -85,8 +85,8 @@ class MediolaServer extends IPSModule
 
     public function VerifyConfiguration()
     {
-		$r = $this->do_HttpRequest('info', []);
-		echo print_r($r, true);
+        $r = $this->do_HttpRequest('info', []);
+        echo print_r($r, true);
     }
 
     // Inspired from module SymconTest/HookServe
@@ -117,28 +117,30 @@ class MediolaServer extends IPSModule
 
     private function do_HttpRequest($cmd, $args)
     {
-		$hostname = $this->ReadPropertyString('hostname');
-		$port = $this->ReadPropertyInteger('port');
-		$accesstoken = $this->ReadPropertyString('accesstoken');
-		$password = $this->ReadPropertyString('password');
+        $hostname = $this->ReadPropertyString('hostname');
+        $port = $this->ReadPropertyInteger('port');
+        $accesstoken = $this->ReadPropertyString('accesstoken');
+        $password = $this->ReadPropertyString('password');
 
-		$url = 'http://' . $hostname;
-		if ($port > 0)
-			$url .= ':' . $port;
-		$url .= '/' . $cmd;
-		$n_arg = 0;
-		if ($accesstoken != '')
-			$url .= ($n_arg++ ? '&' : '?') . 'at=' . $accesstoken;
-		elseif ($password != '')
-			$url .= ($n_arg++ ? '&' : '?') . 'auth=' . $password;
-		if ($args != '') {
-		foreach ($args as $arg => $value) {
-			$url .= ($n_arg++ ? '&' : '?') . $arg . '=' . rawurlencode($value);
-		}
-		}
+        $url = 'http://' . $hostname;
+        if ($port > 0) {
+            $url .= ':' . $port;
+        }
+        $url .= '/' . $cmd;
+        $n_arg = 0;
+        if ($accesstoken != '') {
+            $url .= ($n_arg++ ? '&' : '?') . 'at=' . $accesstoken;
+        } elseif ($password != '') {
+            $url .= ($n_arg++ ? '&' : '?') . 'auth=' . $password;
+        }
+        if ($args != '') {
+            foreach ($args as $arg => $value) {
+                $url .= ($n_arg++ ? '&' : '?') . $arg . '=' . rawurlencode($value);
+            }
+        }
 
         $this->SendDebug(__FUNCTION__, 'http-get: url=' . $url, 0);
-		
+
         $time_start = microtime(true);
 
         $ch = curl_init();
@@ -158,24 +160,25 @@ class MediolaServer extends IPSModule
         $err = '';
         $jdata = '';
         if ($httpcode != 200) {
-			$err = "got http-code $httpcode";
+            $err = "got http-code $httpcode";
         } else {
             $jdata = json_decode($cdata, true);
             if ($jdata == '') {
                 $err = 'malformed response';
-				$this->SendDebug(__FUNCTION__, 'cdata=' . print_r($cdata, true), 0);
+                $this->SendDebug(__FUNCTION__, 'cdata=' . print_r($cdata, true), 0);
             } else {
-				$this->SendDebug(__FUNCTION__, 'jdata=' . print_r($jdata, true), 0);
-			if (isset($jdata['XC_SUC'])) {
-				$ret = $jdata['XC_SUC'];
-			} else {
-				if (isset($jdata['XC_ERR']))
-					$err = $jdata['XC_ERR']['msg'];
-				else
-					$err = "unknown result ". $cdata;
-				$ret = false;
-			}
-			}
+                $this->SendDebug(__FUNCTION__, 'jdata=' . print_r($jdata, true), 0);
+                if (isset($jdata['XC_SUC'])) {
+                    $ret = $jdata['XC_SUC'];
+                } else {
+                    if (isset($jdata['XC_ERR'])) {
+                        $err = $jdata['XC_ERR']['msg'];
+                    } else {
+                        $err = 'unknown result ' . $cdata;
+                    }
+                    $ret = false;
+                }
+            }
         }
 
         if ($err != '') {
@@ -189,70 +192,70 @@ class MediolaServer extends IPSModule
 
 /*
 jdata=Array
-	(
-	    [XC_SUC] => Array
-	        (
-	            [name] => HomeServer
-	            [mhv] => XH I-PI2
-	            [msv] => 2.2.1
-	            [hwv] => A1
-	            [vid] => FFFF
-	            [start] => 1533381561
-	            [time] => 1537203977
-	            [loc] => 8C141A02CC
-	            [cfg] => BF
-	            [server] => v5ws.mediola.com:80
-	            [sid] => D0FA53280CA055ED41AF6EB0498E7A9C
-	            [mem] => 30470
-	            [enocean] => Array
-	                (
-	                    [baseID] => 
-	                    [usb_connected] => 
-	                    [usb_baseID] => 
-	                    [num_free_senderID] => 128
-	                )
-	
-	        )
-	
-	)
-	
+    (
+        [XC_SUC] => Array
+            (
+                [name] => HomeServer
+                [mhv] => XH I-PI2
+                [msv] => 2.2.1
+                [hwv] => A1
+                [vid] => FFFF
+                [start] => 1533381561
+                [time] => 1537203977
+                [loc] => 8C141A02CC
+                [cfg] => BF
+                [server] => v5ws.mediola.com:80
+                [sid] => D0FA53280CA055ED41AF6EB0498E7A9C
+                [mem] => 30470
+                [enocean] => Array
+                    (
+                        [baseID] =>
+                        [usb_connected] =>
+                        [usb_baseID] =>
+                        [num_free_senderID] => 128
+                    )
+
+            )
+
+    )
+
 
 jdata=Array
-	(
-	    [XC_SUC] => Array
-	        (
-	            [name] => Zuhause
-	            [mhv] => XH I-A20
-	            [msv] => 1.1.1
-	            [hwv] => EA
-	            [vid] => FFFF
-	            [start] => 1537110796
-	            [time] => 1537204009
-	            [loc] => 8C141A02CC
-	            [cfg] => 3F
-	            [server] => v5ws.mediola.com:80
-	            [sid] => A09F8D4DEB63BE5C014E74007361C104
-	            [neoserver] => true
-	            [mem] => 781258
-	            [enocean] => Array
-	                (
-	                    [baseID] => 
-	                    [usb_connected] => 
-	                    [usb_baseID] => 
-	                    [num_free_senderID] => 128
-	                )
-	
-	            [SAFE_MODE] => 
-	            [ip] => 192.168.178.36
-	            [sn] => 255.255.255.0
-	            [gw] => 192.168.178.1
-	            [dhcp] => 1
-	            [dns] => 192.168.178.1
-	            [mac] => 40-66-7A-00-51-53
-	            [ntp] => 0.pool.ntp.org
-	            [primary_net] => eth0
-	        )
-	
-	)
-	
+    (
+        [XC_SUC] => Array
+            (
+                [name] => Zuhause
+                [mhv] => XH I-A20
+                [msv] => 1.1.1
+                [hwv] => EA
+                [vid] => FFFF
+                [start] => 1537110796
+                [time] => 1537204009
+                [loc] => 8C141A02CC
+                [cfg] => 3F
+                [server] => v5ws.mediola.com:80
+                [sid] => A09F8D4DEB63BE5C014E74007361C104
+                [neoserver] => true
+                [mem] => 781258
+                [enocean] => Array
+                    (
+                        [baseID] =>
+                        [usb_connected] =>
+                        [usb_baseID] =>
+                        [num_free_senderID] => 128
+                    )
+
+                [SAFE_MODE] =>
+                [ip] => 192.168.178.36
+                [sn] => 255.255.255.0
+                [gw] => 192.168.178.1
+                [dhcp] => 1
+                [dns] => 192.168.178.1
+                [mac] => 40-66-7A-00-51-53
+                [ntp] => 0.pool.ntp.org
+                [primary_net] => eth0
+            )
+
+    )
+
 */
