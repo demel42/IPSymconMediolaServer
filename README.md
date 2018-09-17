@@ -54,11 +54,16 @@ In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie
 
 | Eigenschaft                          | Typ      | Standardwert    | Beschreibung |
 | :----------------------------------: | :-----:  | :-------------: | :----------------------------------------------------------------------------------------------------------: |
+| Hostname                             | string   |                 | Namen oder IP des Gateway / NEO-Server |
+| Port                                 | integer  | 80              | Http-Port, für den Gateway ist das 80, für den NEO Server typischerweise 8088 |
+| Accesstoken                          | string   |                 | Accesstoken des Gateway |
+| Passwort                             | string   |                 | alternativ zum _Accesstoken_ |
 
 #### Schaltflächen
 
 | Bezeichnung                  | Beschreibung |
-| :--------------------------: | :-------------------------------------------------: |
+| :--------------------------: | :-------------------------------------------------------------: |
+| Prüfen Konfiguration         | Zugriff prüfen und Informationen vom Gateway / NEO Server holen |
 
 ## 6. Anhang
 

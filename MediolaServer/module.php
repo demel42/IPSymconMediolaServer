@@ -22,7 +22,7 @@ class MediolaServer extends IPSModule
         $this->RegisterPropertyString('hostname', '');
         $this->RegisterPropertyInteger('port', '80');
 
-        $this->RegisterPropertyString('user', '');
+        $this->RegisterPropertyString('accesstoken', '');
         $this->RegisterPropertyString('password', '');
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -51,7 +51,7 @@ class MediolaServer extends IPSModule
         // Inspired by module SymconTest/HookServe
         // Only call this in READY state. On startup the WebHook instance might not be available yet
         if (IPS_GetKernelRunlevel() == KR_READY) {
-            $this->RegisterHook('/hook/Luftdaten');
+            $this->RegisterHook('/hook/MediolaServer');
         }
     }
 
@@ -59,10 +59,10 @@ class MediolaServer extends IPSModule
     {
         $formElements = [];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'hostname', 'caption' => 'Hostname'];
-        $formElements[] = ['type' => 'Label', 'label' => 'Port ist 80 for the Gateway and typically 8088 for the NEO Server'];
+        $formElements[] = ['type' => 'Label', 'label' => 'Port is 80 for the Gateway and typically 8088 for the NEO Server'];
         $formElements[] = ['type' => 'NumberSpinner', 'name' => 'port', 'caption' => 'Port'];
 
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'user', 'caption' => 'User'];
+        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'accesstoken', 'caption' => 'Accesstoken'];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'password', 'caption' => 'Password'];
 
         $formActions = [];
@@ -85,6 +85,8 @@ class MediolaServer extends IPSModule
 
     public function VerifyConfiguration()
     {
+		$r = $this->do_HttpRequest('info', []);
+		echo print_r($r, true);
     }
 
     // Inspired from module SymconTest/HookServe
@@ -112,4 +114,145 @@ class MediolaServer extends IPSModule
         http_response_code(404);
         die('File not found!');
     }
+
+    private function do_HttpRequest($cmd, $args)
+    {
+		$hostname = $this->ReadPropertyString('hostname');
+		$port = $this->ReadPropertyInteger('port');
+		$accesstoken = $this->ReadPropertyString('accesstoken');
+		$password = $this->ReadPropertyString('password');
+
+		$url = 'http://' . $hostname;
+		if ($port > 0)
+			$url .= ':' . $port;
+		$url .= '/' . $cmd;
+		$n_arg = 0;
+		if ($accesstoken != '')
+			$url .= ($n_arg++ ? '&' : '?') . 'at=' . $accesstoken;
+		elseif ($password != '')
+			$url .= ($n_arg++ ? '&' : '?') . 'auth=' . $password;
+		if ($args != '') {
+		foreach ($args as $arg => $value) {
+			$url .= ($n_arg++ ? '&' : '?') . $arg . '=' . rawurlencode($value);
+		}
+		}
+
+        $this->SendDebug(__FUNCTION__, 'http-get: url=' . $url, 0);
+		
+        $time_start = microtime(true);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        $cdata = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $duration = floor((microtime(true) - $time_start) * 100) / 100;
+        $this->SendDebug(__FUNCTION__, ' => httpcode=' . $httpcode . ', duration=' . $duration . 's', 0);
+
+        $statuscode = 0;
+        $err = '';
+        $jdata = '';
+        if ($httpcode != 200) {
+			$err = "got http-code $httpcode";
+        } else {
+            $jdata = json_decode($cdata, true);
+            if ($jdata == '') {
+                $err = 'malformed response';
+				$this->SendDebug(__FUNCTION__, 'cdata=' . print_r($cdata, true), 0);
+            } else {
+				$this->SendDebug(__FUNCTION__, 'jdata=' . print_r($jdata, true), 0);
+			if (isset($jdata['XC_SUC'])) {
+				$ret = $jdata['XC_SUC'];
+			} else {
+				if (isset($jdata['XC_ERR']))
+					$err = $jdata['XC_ERR']['msg'];
+				else
+					$err = "unknown result ". $cdata;
+				$ret = false;
+			}
+			}
+        }
+
+        if ($err != '') {
+            echo "url=$url => err=$err";
+            $this->SendDebug(__FUNCTION__, ' => err=' . $err, 0);
+        }
+
+        return $ret;
+    }
 }
+
+/*
+jdata=Array
+	(
+	    [XC_SUC] => Array
+	        (
+	            [name] => HomeServer
+	            [mhv] => XH I-PI2
+	            [msv] => 2.2.1
+	            [hwv] => A1
+	            [vid] => FFFF
+	            [start] => 1533381561
+	            [time] => 1537203977
+	            [loc] => 8C141A02CC
+	            [cfg] => BF
+	            [server] => v5ws.mediola.com:80
+	            [sid] => D0FA53280CA055ED41AF6EB0498E7A9C
+	            [mem] => 30470
+	            [enocean] => Array
+	                (
+	                    [baseID] => 
+	                    [usb_connected] => 
+	                    [usb_baseID] => 
+	                    [num_free_senderID] => 128
+	                )
+	
+	        )
+	
+	)
+	
+
+jdata=Array
+	(
+	    [XC_SUC] => Array
+	        (
+	            [name] => Zuhause
+	            [mhv] => XH I-A20
+	            [msv] => 1.1.1
+	            [hwv] => EA
+	            [vid] => FFFF
+	            [start] => 1537110796
+	            [time] => 1537204009
+	            [loc] => 8C141A02CC
+	            [cfg] => 3F
+	            [server] => v5ws.mediola.com:80
+	            [sid] => A09F8D4DEB63BE5C014E74007361C104
+	            [neoserver] => true
+	            [mem] => 781258
+	            [enocean] => Array
+	                (
+	                    [baseID] => 
+	                    [usb_connected] => 
+	                    [usb_baseID] => 
+	                    [num_free_senderID] => 128
+	                )
+	
+	            [SAFE_MODE] => 
+	            [ip] => 192.168.178.36
+	            [sn] => 255.255.255.0
+	            [gw] => 192.168.178.1
+	            [dhcp] => 1
+	            [dns] => 192.168.178.1
+	            [mac] => 40-66-7A-00-51-53
+	            [ntp] => 0.pool.ntp.org
+	            [primary_net] => eth0
+	        )
+	
+	)
+	
+*/
