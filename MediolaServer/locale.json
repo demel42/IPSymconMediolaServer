@@ -1,0 +1,11 @@
+{
+	"translations": {
+		"de": {
+			"Instance getting created": "Instanz wird erstellt",
+			"Instance is active": "Instanz ist aktiv",
+			"Instance is inactive": "Instanz ist inaktiv",
+
+			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)"
+		}
+	}
+}

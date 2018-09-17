@@ -1,0 +1,12 @@
+{
+	"id": "{C0BD3A9B-D600-4B78-B9CC-173AC2819CE5}",
+	"author": "Ch. Damsky",
+	"name": "IPSymconMediolaGateway",
+	"url": "https://github.com/demel42/IPSymconMediolaGateway",
+	"compatibility": {
+		"version": "5.0"
+	},
+	"version": "0.9",
+	"build": 0,
+	"date": 1537196286
+}

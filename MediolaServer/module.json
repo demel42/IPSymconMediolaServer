@@ -1,0 +1,13 @@
+{
+	"id": "{3525077B-2902-459F-BFA9-E9F4F18B4C0B}",
+	"name": "MediolaServer",
+	"type": 3,
+	"vendor": "Mediola",
+	"aliases": [
+		"Gateway V5/V5+/NEO Server"
+	],
+	"parentRequirements": [],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "MediolaServer"
+}
