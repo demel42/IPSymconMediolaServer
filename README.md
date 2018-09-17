@@ -1,4 +1,4 @@
-# IPSymconMediolaGateway
+# IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 ![Module-Version](https://img.shields.io/badge/Modul_Version-0.9-blue.svg)
@@ -66,7 +66,7 @@ GUIDs
 
 - Modul: `{C0BD3A9B-D600-4B78-B9CC-173AC2819CE5}`
 - Instanzen:
-  - MediolaGateway: `{3525077B-2902-459F-BFA9-E9F4F18B4C0B}`
+  - MediolaServer: `{3525077B-2902-459F-BFA9-E9F4F18B4C0B}`
 
 ## 7. Versions-Historie
 
