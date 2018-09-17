@@ -106,7 +106,7 @@ class MediolaServer extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'malformed data: ' . $data, 0);
                 return;
             }
-			// DOIT 
+            // DOIT
             return;
         }
         http_response_code(404);
