@@ -85,53 +85,53 @@ class MediolaServer extends IPSModule
 
     public function VerifyConfiguration()
     {
-		$msg = '';
-		$err = '';
+        $msg = '';
+        $err = '';
         $ret = $this->do_HttpRequest('/info', []);
-		if ($ret != '') {
-			if (isset($ret['XC_SUC'])) {
-				$data = $ret['XC_SUC'];
-				$name = $data['name'];
-				$msv = $data['msv']; // Firmware
-				$hwv = $data['hwv']; // Hardware-Version
-				$start = $data['start']; // Startzeitpunkt
-				switch ($hwv) {
-					case 'A1':
-						$hw = 'NEO Server';
-						break;
-					case 'E1':
-						$hw = 'Gateway V5';
-						break;
-					case 'EA':
-						$hw = 'Gateway V5+';
-						break;
-					default:
-						$hw = $this->Translate('unknown type') . ' \'' . $hwv . '\'';
-						break;
-				}
+        if ($ret != '') {
+            if (isset($ret['XC_SUC'])) {
+                $data = $ret['XC_SUC'];
+                $name = $data['name'];
+                $msv = $data['msv']; // Firmware
+                $hwv = $data['hwv']; // Hardware-Version
+                $start = $data['start']; // Startzeitpunkt
+                switch ($hwv) {
+                    case 'A1':
+                        $hw = 'NEO Server';
+                        break;
+                    case 'E1':
+                        $hw = 'Gateway V5';
+                        break;
+                    case 'EA':
+                        $hw = 'Gateway V5+';
+                        break;
+                    default:
+                        $hw = $this->Translate('unknown type') . ' \'' . $hwv . '\'';
+                        break;
+                }
 
-				$msg = PHP_EOL;
-				$msg .= $this->Translate('check succeeded') . ':' . PHP_EOL;
-				$msg .= '  ' . $this->Translate('Name') . ': ' . $name . PHP_EOL;
-				$msg .= '  ' . $this->Translate('Hardware') . ': ' . $hw . PHP_EOL;
-				$msg .= '  ' . $this->Translate('Firmware') . ': ' . $msv . PHP_EOL;
-				$msg .= '  ' . $this->Translate('Boot time') . ': ' . date('d.m.Y H:i', $start);
-			} elseif (isset($ret['XC_ERR'])) {
-				$err = $this->Translate('error') . ': ' . $data['msg'];
-			} else {
-				$err = $this->Translate('unknown result') . ': ' . print_r($ret, true);
-			}
-		} else {
-			$msg = PHP_EOL;
-			$msg .= $this->Translate('check failed') . ':' . PHP_EOL;
-			$err = $this->Translate('reason unknown');
-		}
-		if ($err != '') {
-			$msg = PHP_EOL;
-			$msg .= $this->Translate('check failed') . ':' . PHP_EOL;
-			$msg .= '  ' . $err;
-		}
-		echo $msg;
+                $msg = PHP_EOL;
+                $msg .= $this->Translate('check succeeded') . ':' . PHP_EOL;
+                $msg .= '  ' . $this->Translate('Name') . ': ' . $name . PHP_EOL;
+                $msg .= '  ' . $this->Translate('Hardware') . ': ' . $hw . PHP_EOL;
+                $msg .= '  ' . $this->Translate('Firmware') . ': ' . $msv . PHP_EOL;
+                $msg .= '  ' . $this->Translate('Boot time') . ': ' . date('d.m.Y H:i', $start);
+            } elseif (isset($ret['XC_ERR'])) {
+                $err = $this->Translate('error') . ': ' . $data['msg'];
+            } else {
+                $err = $this->Translate('unknown result') . ': ' . print_r($ret, true);
+            }
+        } else {
+            $msg = PHP_EOL;
+            $msg .= $this->Translate('check failed') . ':' . PHP_EOL;
+            $err = $this->Translate('reason unknown');
+        }
+        if ($err != '') {
+            $msg = PHP_EOL;
+            $msg .= $this->Translate('check failed') . ':' . PHP_EOL;
+            $msg .= '  ' . $err;
+        }
+        echo $msg;
     }
 
     // Inspired from module SymconTest/HookServe
@@ -181,8 +181,9 @@ class MediolaServer extends IPSModule
         if ($args != '') {
             foreach ($args as $arg => $value) {
                 $url .= ($n_arg++ ? '&' : '?') . $arg;
-				if ($value != '')
-					$url .= '=' . rawurlencode($value);
+                if ($value != '') {
+                    $url .= '=' . rawurlencode($value);
+                }
             }
         }
 
@@ -219,10 +220,10 @@ class MediolaServer extends IPSModule
                     $ret = $jdata;
                 } else {
                     if (isset($jdata['XC_ERR'])) {
-						$ret = $jdata;
+                        $ret = $jdata;
                         $err = $ret['XC_ERR']['msg'];
                     } else {
-						$ret = false;
+                        $ret = false;
                         $err = 'unknown result ' . $cdata;
                     }
                 }
@@ -237,166 +238,166 @@ class MediolaServer extends IPSModule
         return $ret;
     }
 
-	public function CallTask(string $args)
-	{
+    public function CallTask(string $args)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$jargs = json_decode($args, true);
-		if ($jargs == '') {
-			$n = strpos($args, "=");
-		    if ($n) {
-				$arg = substr($args, 0, $n);
-				$value = substr($args, ($n + 1));
-			} else {
-				$arg = $args;
-				$value = '';
-			}
-			$jargs = [$arg => $value];
-		}
-		$ret = $this->do_HttpRequest('/tm/http', $jargs);
-		$r = $ret != '' && isset($ret['XC_SUC']);
-		$ident = '';
-		foreach ($jargs as $arg => $value) {
-			$ident .= ($ident != '' ? '&' : '') . $arg . '=' . $value;
-		}
-		$s = 'call task \'' . $ident . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
-		return $r;
-	}
+        $jargs = json_decode($args, true);
+        if ($jargs == '') {
+            $n = strpos($args, '=');
+            if ($n) {
+                $arg = substr($args, 0, $n);
+                $value = substr($args, ($n + 1));
+            } else {
+                $arg = $args;
+                $value = '';
+            }
+            $jargs = [$arg => $value];
+        }
+        $ret = $this->do_HttpRequest('/tm/http', $jargs);
+        $r = $ret != '' && isset($ret['XC_SUC']);
+        $ident = '';
+        foreach ($jargs as $arg => $value) {
+            $ident .= ($ident != '' ? '&' : '') . $arg . '=' . $value;
+        }
+        $s = 'call task \'' . $ident . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        return $r;
+    }
 
-	private function setVal(string $id, string $type, string $value)
-	{
-		$args = [
-				'XC_FNC' => 'setVar',
-				'id'     => $id,
-				'type'   => $type,
-				'value'  => $value,
-			];
-		$ret = $this->do_HttpRequest('/cmd', $args);
-		$r = $ret != '' && isset($ret['XC_SUC']);
-		return $r;
-	}
+    private function setVal(string $id, string $type, string $value)
+    {
+        $args = [
+                'XC_FNC' => 'setVar',
+                'id'     => $id,
+                'type'   => $type,
+                'value'  => $value,
+            ];
+        $ret = $this->do_HttpRequest('/cmd', $args);
+        $r = $ret != '' && isset($ret['XC_SUC']);
+        return $r;
+    }
 
-	public function SetValueString(string $id, string $sval)
-	{
+    public function SetValueString(string $id, string $sval)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$value = rawurlencode($sval);
-		$r = $this->setVal($id, 'STRING', $value);
-		$s = 'set var ' . $id . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
-		return $r;
-	}
+        $value = rawurlencode($sval);
+        $r = $this->setVal($id, 'STRING', $value);
+        $s = 'set var ' . $id . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        return $r;
+    }
 
-	public function SetValueBoolean(string $id, boolean $bval)
-	{
+    public function SetValueBoolean(string $id, boolean $bval)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$value = $bval ? "on" : "off";
-		$r = $this->setVal($id, 'ONOFF', $value);
-		$s = 'set var ' . $id . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
-		return $r;
-	}
+        $value = $bval ? 'on' : 'off';
+        $r = $this->setVal($id, 'ONOFF', $value);
+        $s = 'set var ' . $id . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        return $r;
+    }
 
-	public function SetValueInteger(string $id, integer $ival)
-	{
+    public function SetValueInteger(string $id, integer $ival)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$value = strtoupper(dechex($ival));
-		while (strlen($value) < 4) {
-			$value = "0" . $value;
-		}
-		$r = $this->setVal($id, 'INT', $value);
-		$s = 'set var ' . $id . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
-		return $r;
-	}
+        $value = strtoupper(dechex($ival));
+        while (strlen($value) < 4) {
+            $value = '0' . $value;
+        }
+        $r = $this->setVal($id, 'INT', $value);
+        $s = 'set var ' . $id . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        return $r;
+    }
 
-	function SetValueFloat(string $id, float $fval)
-	{
+    public function SetValueFloat(string $id, float $fval)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$value = strtoupper(dechex(floor($fval * 100)));
-		while (strlen($value) < 4) {
-			$value = "0" . $value;
-		}
-		$r = $this->setVal($id, 'FLOAT', $value);
-		$s = 'set var ' . $id . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
-		return $r;
-	}
+        $value = strtoupper(dechex(floor($fval * 100)));
+        while (strlen($value) < 4) {
+            $value = '0' . $value;
+        }
+        $r = $this->setVal($id, 'FLOAT', $value);
+        $s = 'set var ' . $id . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        return $r;
+    }
 
-	private function getVal(string $id, string $type)
-	{
-		$args = [
-				'XC_FNC' => 'GetStates',
-			];
-		$ret = $this->do_HttpRequest('/cmd', $args);
-		$r = false;
-		if ($ret != '' && isset($ret['XC_SUC'])) {
-			$devices = $ret['XC_SUC'];
-			$this->SendDebug(__FUNCTION__, 'devices=' . print_r($devices, true), 0);
-			foreach ($devices as $device) {
-				$this->SendDebug(__FUNCTION__, 'device=' . print_r($device, true), 0);
-				if (!(isset($device['adr']) && isset($device['type'])))
-					continue;
-				if ($device['adr'] == $id && $device['type'] == $type) {
-					$r = $device['state'];
-					break;
-				}
-				
-			}
-		}
-		return $r;
-	}
+    private function getVal(string $id, string $type)
+    {
+        $args = [
+                'XC_FNC' => 'GetStates',
+            ];
+        $ret = $this->do_HttpRequest('/cmd', $args);
+        $r = false;
+        if ($ret != '' && isset($ret['XC_SUC'])) {
+            $devices = $ret['XC_SUC'];
+            $this->SendDebug(__FUNCTION__, 'devices=' . print_r($devices, true), 0);
+            foreach ($devices as $device) {
+                $this->SendDebug(__FUNCTION__, 'device=' . print_r($device, true), 0);
+                if (!(isset($device['adr']) && isset($device['type']))) {
+                    continue;
+                }
+                if ($device['adr'] == $id && $device['type'] == $type) {
+                    $r = $device['state'];
+                    break;
+                }
+            }
+        }
+        return $r;
+    }
 
-	public function GetValueString(string $id)
-	{
+    public function GetValueString(string $id)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$r = $this->getVal($id, 'STRING');
-		$value = $r ? rawurldecode($r) : '';
-		$s = 'get var ' . $id . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		return $value;
-	}
+        $r = $this->getVal($id, 'STRING');
+        $value = $r ? rawurldecode($r) : '';
+        $s = 'get var ' . $id . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        return $value;
+    }
 
-	public function GetValueBoolean(string $id)
-	{
+    public function GetValueBoolean(string $id)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$r = $this->getVal($id, 'ONOFF');
-		$value = $r == "ON" ? true : false;
-		$s = 'get var ' . $id . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		return $value;
-	}
+        $r = $this->getVal($id, 'ONOFF');
+        $value = $r == 'ON' ? true : false;
+        $s = 'get var ' . $id . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        return $value;
+    }
 
-	public function GetValueInteger(string $id)
-	{
+    public function GetValueInteger(string $id)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$r = $this->getVal($id, 'INT');
-		$value = $r ? hexdec($r) : '';
-		$s = 'get var ' . $id . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		return $value;
-	}
+        $r = $this->getVal($id, 'INT');
+        $value = $r ? hexdec($r) : '';
+        $s = 'get var ' . $id . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        return $value;
+    }
 
-	public function GetValueFloat(string $id)
-	{
+    public function GetValueFloat(string $id)
+    {
         $hostname = $this->ReadPropertyString('hostname');
 
-		$r = $this->getVal($id, 'FLOAT');
-		$value = $r ? hexdec($r) / 100.0 : '';
-		$s = 'get var ' . $id . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
-		$this->SendDebug(__FUNCTION__, $s, 0);
-		return $value;
-	}
+        $r = $this->getVal($id, 'FLOAT');
+        $value = $r ? hexdec($r) / 100.0 : '';
+        $s = 'get var ' . $id . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
+        $this->SendDebug(__FUNCTION__, $s, 0);
+        return $value;
+    }
 }
