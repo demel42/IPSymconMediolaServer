@@ -27,9 +27,9 @@ class MediolaServer extends IPSModule
 
         $this->RegisterPropertyString('task_ident', 'ips-callback=1');
 
-		// maximales Alter eines Queue-Eintrags
+        // maximales Alter eines Queue-Eintrags
         $this->RegisterPropertyInteger('max_age', 60 * 60);
-		// maximales Wartezeit eines Queue-Eintrags nach Task-Aufruf
+        // maximales Wartezeit eines Queue-Eintrags nach Task-Aufruf
         $this->RegisterPropertyInteger('max_wait', 3);
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -151,15 +151,15 @@ class MediolaServer extends IPSModule
         $uri = $_SERVER['REQUEST_URI'];
         $this->SendDebug(__FUNCTION__, 'uri=' . $uri, 0);
         if (substr($uri, -1) == '/') {
-			$this->SendDebug(__FUNCTION__, 'substr uri=' . substr($uri, -1), 0);
+            $this->SendDebug(__FUNCTION__, 'substr uri=' . substr($uri, -1), 0);
             http_response_code(404);
             die('File not found!');
         }
 
-		$pos = strpos($uri, '?');
-		$baseuri = $pos ? substr($uri, 0, $pos) : $uri;
+        $pos = strpos($uri, '?');
+        $baseuri = $pos ? substr($uri, 0, $pos) : $uri;
         if ($baseuri == '/hook/MediolaServer') {
-			$this->Callback($_GET);
+            $this->Callback($_GET);
             return;
         }
         http_response_code(404);
@@ -407,307 +407,311 @@ class MediolaServer extends IPSModule
         return $value;
     }
 
-	public function RunAction(string $data)
-	{
+    public function RunAction(string $data)
+    {
         $max_age = $this->ReadPropertyInteger('max_age');
 
-		$semaphoreID = __CLASS__;
+        $semaphoreID = __CLASS__;
 
-		$time_start = microtime(true);
-		$new_id = -1;
-		if (IPS_SemaphoreEnter($semaphoreID, 250)) {
-			$sdata = $this->GetValue('Queue');
-			$new_actions = [];
-			if ($sdata != '') {
-				$actions = json_decode($sdata, true);
-				foreach ($actions as $action) {
-					if (!isset($action['id'])) {
-						continue;
-					}
-					if ($action['creation'] < time() - $max_age) {
-						continue;
-					}
-					$new_actions[] = $action;
-					if ($action['id'] > $new_id) {
-						$new_id = $action['id'];
-					}
-				}
-			}
-			$new_id = $new_id == -1 ? 1 : $new_id + 1;
-			$s = json_decode($data, true);
-			$s['id'] = $new_id;
-			if (!isset($s['async'])) {
-				$s['async'] = true;
-			}
-			$action = [
-					'id'       => $new_id,
-					'creation' => time(),
-					'data'     => $s,
-					'status'   => 'pending',
-				];
-			$new_actions[] = $action;
-			$sdata = json_encode($new_actions);
-			$this->SetValue('Queue', $sdata);
-			IPS_SemaphoreLeave($semaphoreID);
-		} else {
-			$this->SendDebug(__FUNCTION__, 'sempahore ' . $semaphoreID . ' is not accessable', 0);
-		}
-		$duration = floor((microtime(true) - $time_start) * 100) / 100;
-		$this->SendDebug(__FUNCTION__, 'duration=' . $duration . 's' . ($new_id != -1 ? ' => id=' . $new_id : ' => failed'), 0);
-		return $new_id;
-	}
+        $time_start = microtime(true);
+        $new_id = -1;
+        if (IPS_SemaphoreEnter($semaphoreID, 250)) {
+            $sdata = $this->GetValue('Queue');
+            $new_actions = [];
+            if ($sdata != '') {
+                $actions = json_decode($sdata, true);
+                foreach ($actions as $action) {
+                    if (!isset($action['id'])) {
+                        continue;
+                    }
+                    if ($action['creation'] < time() - $max_age) {
+                        continue;
+                    }
+                    $new_actions[] = $action;
+                    if ($action['id'] > $new_id) {
+                        $new_id = $action['id'];
+                    }
+                }
+            }
+            $new_id = $new_id == -1 ? 1 : $new_id + 1;
+            $s = json_decode($data, true);
+            $s['id'] = $new_id;
+            if (!isset($s['async'])) {
+                $s['async'] = true;
+            }
+            $action = [
+                    'id'       => $new_id,
+                    'creation' => time(),
+                    'data'     => $s,
+                    'status'   => 'pending',
+                ];
+            $new_actions[] = $action;
+            $sdata = json_encode($new_actions);
+            $this->SetValue('Queue', $sdata);
+            IPS_SemaphoreLeave($semaphoreID);
+        } else {
+            $this->SendDebug(__FUNCTION__, 'sempahore ' . $semaphoreID . ' is not accessable', 0);
+        }
+        $duration = floor((microtime(true) - $time_start) * 100) / 100;
+        $this->SendDebug(__FUNCTION__, 'duration=' . $duration . 's' . ($new_id != -1 ? ' => id=' . $new_id : ' => failed'), 0);
+        return $new_id;
+    }
 
-	public function ExecuteCommand(string $room, string $device, string $action, string $value, bool $async)
-	{
-		$data = [ 'mode' => 'executeCommand', 'room' => $room, 'device' => $device, 'action' => $action, 'async' => $async ];
-		if ($value != '')
-			$data['value'] = $value;
-		$this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-		return $this->RunAction(json_encode($data));
-	}
+    public function ExecuteCommand(string $room, string $device, string $action, string $value, bool $async)
+    {
+        $data = ['mode' => 'executeCommand', 'room' => $room, 'device' => $device, 'action' => $action, 'async' => $async];
+        if ($value != '') {
+            $data['value'] = $value;
+        }
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+        return $this->RunAction(json_encode($data));
+    }
 
-	public function ExecuteMakro(string $group, string $macro, bool $async)
-	{
-		$data = [ 'mode' => 'executeMacro', 'group' => $group, 'macro' => $macro, 'action' => $action, 'async' => $async ];
-		return $this->RunAction(json_encode($data));
-	}
+    public function ExecuteMakro(string $group, string $macro, bool $async)
+    {
+        $data = ['mode' => 'executeMacro', 'group' => $group, 'macro' => $macro, 'action' => $action, 'async' => $async];
+        return $this->RunAction(json_encode($data));
+    }
 
-	public function GetStatus(string $room, string $device, string $variable, bool $async)
-	{
-		$data = [ 'mode' => 'macro', 'room' => $room, 'device' => $device, 'variable' => $variable, 'async' => $async ];
-		return $this->RunAction(json_encode($data));
-	}
+    public function GetStatus(string $room, string $device, string $variable, bool $async)
+    {
+        $data = ['mode' => 'macro', 'room' => $room, 'device' => $device, 'variable' => $variable, 'async' => $async];
+        return $this->RunAction(json_encode($data));
+    }
 
-	public function CheckAction()
-	{
+    public function CheckAction()
+    {
         $hostname = $this->ReadPropertyString('hostname');
         $task_ident = $this->ReadPropertyString('task_ident');
         $max_wait = $this->ReadPropertyInteger('max_wait');
 
-		$semaphoreID = __CLASS__;
+        $semaphoreID = __CLASS__;
 
-		$r = true;
-		$total_duration = 0;
-		while (true) {
-			$ac = '';
-			$id = '';
-			$waiting = false;
-			$time_start = microtime(true);
-			if (IPS_SemaphoreEnter($semaphoreID, 250)) {
-				$sdata = $this->GetValue('Queue');
-				if ($sdata == '') {
-					break;
-				}
-				$new_actions = [];
-				$actions = json_decode($sdata, true);
-				foreach ($actions as $action) {
-					if (!isset($action['id'])) {
-						continue;
-					}
-					if ($action['status'] == 'wait') {
-						if (isset($action['microtime']) && (microtime(true) - $action['microtime']) > $max_wait) {
-							continue;
-						}
-						$waiting = true;
-						$id = $action['id'];
-					}
-				}
-				foreach ($actions as $action) {
-					if (!isset($action['id'])) {
-						continue;
-					}
-					if ($action['creation'] < time() - 60 * 60) {
-						continue;
-					}
-					if (isset($action['microtime'])) {
-						$mt = microtime(true) - $action['microtime'];
-						if ($mt > $max_wait) {
-							$action['status'] = 'overdue';
-							$action['duration'] = $mt;
-							unset($action['microtime']);
-						}
-					}
-					if ($action['status'] == 'pending' && ! $waiting && $id == '') {
-						$ac = $action;
-						$action['status'] = 'wait';
-						$action['microtime'] = microtime(true);
-						$id = $action['id'];
-					}
-					$new_actions[] = $action;
-				}
-				$sdata = json_encode($new_actions);
-				$this->SetValue('Queue', $sdata);
-				IPS_SemaphoreLeave($semaphoreID);
-				$ok = true;
-			} else {
-				$this->SendDebug(__FUNCTION__, 'sempahore ' . $semaphoreID . ' is not accessable', 0);
-				$ok = false;
-			}
-			$duration = floor((microtime(true) - $time_start) * 100) / 100;
-			$this->SendDebug(__FUNCTION__, 'duration=' . $duration . 's, ok=' . ($ok ? 'true' : 'false') . ', waiting=' . ($waiting ? 'true' : 'false') . ', id=' . $id, 0);
-			$total_duration += $duration;
-			if ($total_duration > 10 && $waiting) {
-				$this->SendDebug(__FUNCTION__, 'total_duration=' . $total_duration . ' => abort', 0);
-				$ok = false;
-			}
-			if (!$ok)
-				break;
-			if ($id == '') {
-				$this->SendDebug(__FUNCTION__, 'no more pending id\'s => abort', 0);
-				break;
-			}
-			if ($waiting)
-				IPS_Sleep(100);
-			else {
-				$s = '';
-				$keys =  ['mode', 'room', 'device', 'action', 'variable'];
-				foreach ($keys as $key) {
-					if (isset($ac['data'][$key]))
-						$s .= ($s != '' ? ', ' : '') . $key . '=' . $ac['data'][$key];
-				}
-				IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'trigger action: id=' . $id . ', ' . $s);
-				$r = $this->CallTask($task_ident);
-				$this->SendDebug(__FUNCTION__, 'call task' . ': id=' . $id . ', action=' . print_r($ac, true) . ', r=' . $r, 0);
-				break;
-			}
-		}
-		return $r;
-	}
+        $r = true;
+        $total_duration = 0;
+        while (true) {
+            $ac = '';
+            $id = '';
+            $waiting = false;
+            $time_start = microtime(true);
+            if (IPS_SemaphoreEnter($semaphoreID, 250)) {
+                $sdata = $this->GetValue('Queue');
+                if ($sdata == '') {
+                    break;
+                }
+                $new_actions = [];
+                $actions = json_decode($sdata, true);
+                foreach ($actions as $action) {
+                    if (!isset($action['id'])) {
+                        continue;
+                    }
+                    if ($action['status'] == 'wait') {
+                        if (isset($action['microtime']) && (microtime(true) - $action['microtime']) > $max_wait) {
+                            continue;
+                        }
+                        $waiting = true;
+                        $id = $action['id'];
+                    }
+                }
+                foreach ($actions as $action) {
+                    if (!isset($action['id'])) {
+                        continue;
+                    }
+                    if ($action['creation'] < time() - 60 * 60) {
+                        continue;
+                    }
+                    if (isset($action['microtime'])) {
+                        $mt = microtime(true) - $action['microtime'];
+                        if ($mt > $max_wait) {
+                            $action['status'] = 'overdue';
+                            $action['duration'] = $mt;
+                            unset($action['microtime']);
+                        }
+                    }
+                    if ($action['status'] == 'pending' && !$waiting && $id == '') {
+                        $ac = $action;
+                        $action['status'] = 'wait';
+                        $action['microtime'] = microtime(true);
+                        $id = $action['id'];
+                    }
+                    $new_actions[] = $action;
+                }
+                $sdata = json_encode($new_actions);
+                $this->SetValue('Queue', $sdata);
+                IPS_SemaphoreLeave($semaphoreID);
+                $ok = true;
+            } else {
+                $this->SendDebug(__FUNCTION__, 'sempahore ' . $semaphoreID . ' is not accessable', 0);
+                $ok = false;
+            }
+            $duration = floor((microtime(true) - $time_start) * 100) / 100;
+            $this->SendDebug(__FUNCTION__, 'duration=' . $duration . 's, ok=' . ($ok ? 'true' : 'false') . ', waiting=' . ($waiting ? 'true' : 'false') . ', id=' . $id, 0);
+            $total_duration += $duration;
+            if ($total_duration > 10 && $waiting) {
+                $this->SendDebug(__FUNCTION__, 'total_duration=' . $total_duration . ' => abort', 0);
+                $ok = false;
+            }
+            if (!$ok) {
+                break;
+            }
+            if ($id == '') {
+                $this->SendDebug(__FUNCTION__, 'no more pending id\'s => abort', 0);
+                break;
+            }
+            if ($waiting) {
+                IPS_Sleep(100);
+            } else {
+                $s = '';
+                $keys = ['mode', 'room', 'device', 'action', 'variable'];
+                foreach ($keys as $key) {
+                    if (isset($ac['data'][$key])) {
+                        $s .= ($s != '' ? ', ' : '') . $key . '=' . $ac['data'][$key];
+                    }
+                }
+                IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'trigger action: id=' . $id . ', ' . $s);
+                $r = $this->CallTask($task_ident);
+                $this->SendDebug(__FUNCTION__, 'call task' . ': id=' . $id . ', action=' . print_r($ac, true) . ', r=' . $r, 0);
+                break;
+            }
+        }
+        return $r;
+    }
 
-	private function Callback($args)
-	{
+    private function Callback($args)
+    {
         $max_age = $this->ReadPropertyInteger('max_age');
 
-		$semaphoreID = __CLASS__;
+        $semaphoreID = __CLASS__;
 
-		$mode = isset($args['mode']) ? $args['mode'] : '';
-		switch ($mode) {
-			case 'query':
-				$data = '';
-				if (IPS_SemaphoreEnter($semaphoreID, 250)) {
-					$ac = '';
-					$id = '';
-					$sdata = $this->GetValue('Queue');
-					$actions = json_decode($sdata, true);
-					foreach ($actions as $action) {
-						if (!isset($action['id'])) {
-							continue;
-						}
-						if ($action['status'] == 'wait') {
-							$ac = $action;
-							$id = $action['id'];
-							$data = $action['data'];
-							break;
-						}
-					}
-					
-					if ($id != '' && isset($data['async']) && $data['async']) {
-						$new_actions = [];
-						foreach ($actions as $action) {
-							if (!isset($action['id'])) {
-								continue;
-							}
-							if ($action['creation'] < time() - $max_age) {
-								continue;
-							}
-							if ($action['id'] == $id) {
-								$action['status'] = 'done';
-								if (isset($action['microtime'])) {
-									$action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
-									unset($action['microtime']);
-								}
-							}
-							$new_actions[] = $action;
-						}
-						$sdata = json_encode($new_actions);
-						$this->SetValue('Queue', $sdata);
-					}
-					IPS_SemaphoreLeave($semaphoreID);
-					$this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', action=' . print_r($ac, true), 0);
-				} else {
-					$this->SendDebug(__FUNCTION__,  'mode=' . $mode . ': sempahore ' . $semaphoreID . ' is not accessable', 0);
-				}
-				echo $data != '' ? json_encode($data) : '';
-				break;
-			case 'status':
-				$id = isset($args['id']) ? $args['id'] : '';
-				$status = isset($args['status']) ? $args['status'] : '';
-				$err = isset($args['err']) ? $args['err'] : '';
-				if (IPS_SemaphoreEnter($semaphoreID, 250)) {
-					$ac = '';
-					$sdata = $this->GetValue('Queue');
-					$new_actions = [];
-					$actions = json_decode($sdata, true);
-					foreach ($actions as $action) {
-						if (!isset($action['id'])) {
-							continue;
-						}
-						if ($action['creation'] < time() - $max_age) {
-							continue;
-						}
-						if ($action['id'] == $id) {
-							$ac = $action;
-							$action['status'] = $status;
-							if ($err != '')
-								$action['error'] = $err;
-							if (isset($action['microtime'])) {
-								$action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
-								unset($action['microtime']);
-							}
-						}
-						$new_actions[] = $action;
-					}
-					$sdata = json_encode($new_actions);
-					$this->SetValue('Queue', $sdata);
-					IPS_SemaphoreLeave($semaphoreID);
-					$this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', err=' . $err . ', action=' . print_r($ac, true), 0);
-				} else {
-					$this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $semaphoreID . ' is not accessable', 0);
-				}
-				break;
-			case 'value':
-				$id = isset($args['id']) ? $args['id'] : '';
-				$status = isset($args['status']) ? $args['status'] : '';
-				$value = isset($args['value']) ? $args['value'] : '';
-				if (IPS_SemaphoreEnter($semaphoreID, 250)) {
-					$ac = '';
-					$sdata = $this->GetValue('Queue');
-					$new_actions = [];
-					$actions = json_decode($sdata, true);
-					foreach ($actions as $action) {
-						if (!isset($action['id'])) {
-							continue;
-						}
-						if ($action['creation'] < time() - $max_age) {
-							continue;
-						}
-						if ($action['id'] == $id) {
-							$ac = $action;
-							$action['status'] = $status;
-							$action['value'] = $value;
-							if (isset($action['microtime'])) {
-								$action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
-								unset($action['microtime']);
-							}
-						}
-						$new_actions[] = $action;
-					}
-					$sdata = json_encode($new_actions);
-					$this->SetValue('Queue', $sdata);
-					IPS_SemaphoreLeave($semaphoreID);
-					$this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', value=' . $value . ', action=' . print_r($ac, true), 0);
-				} else {
-					$this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $semaphoreID . ' is not accessable', 0);
-				}
-				break;
-			default:
-				$this->SendDebug(__FUNCTION__, 'unknown mode \'' . $mode . '\'', 0);
-				break;
-		}
-	}
+        $mode = isset($args['mode']) ? $args['mode'] : '';
+        switch ($mode) {
+            case 'query':
+                $data = '';
+                if (IPS_SemaphoreEnter($semaphoreID, 250)) {
+                    $ac = '';
+                    $id = '';
+                    $sdata = $this->GetValue('Queue');
+                    $actions = json_decode($sdata, true);
+                    foreach ($actions as $action) {
+                        if (!isset($action['id'])) {
+                            continue;
+                        }
+                        if ($action['status'] == 'wait') {
+                            $ac = $action;
+                            $id = $action['id'];
+                            $data = $action['data'];
+                            break;
+                        }
+                    }
 
-	public function GetQueue()
-	{
-		return $this->GetValue('Queue');
-	}
+                    if ($id != '' && isset($data['async']) && $data['async']) {
+                        $new_actions = [];
+                        foreach ($actions as $action) {
+                            if (!isset($action['id'])) {
+                                continue;
+                            }
+                            if ($action['creation'] < time() - $max_age) {
+                                continue;
+                            }
+                            if ($action['id'] == $id) {
+                                $action['status'] = 'done';
+                                if (isset($action['microtime'])) {
+                                    $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
+                                    unset($action['microtime']);
+                                }
+                            }
+                            $new_actions[] = $action;
+                        }
+                        $sdata = json_encode($new_actions);
+                        $this->SetValue('Queue', $sdata);
+                    }
+                    IPS_SemaphoreLeave($semaphoreID);
+                    $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', action=' . print_r($ac, true), 0);
+                } else {
+                    $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ': sempahore ' . $semaphoreID . ' is not accessable', 0);
+                }
+                echo $data != '' ? json_encode($data) : '';
+                break;
+            case 'status':
+                $id = isset($args['id']) ? $args['id'] : '';
+                $status = isset($args['status']) ? $args['status'] : '';
+                $err = isset($args['err']) ? $args['err'] : '';
+                if (IPS_SemaphoreEnter($semaphoreID, 250)) {
+                    $ac = '';
+                    $sdata = $this->GetValue('Queue');
+                    $new_actions = [];
+                    $actions = json_decode($sdata, true);
+                    foreach ($actions as $action) {
+                        if (!isset($action['id'])) {
+                            continue;
+                        }
+                        if ($action['creation'] < time() - $max_age) {
+                            continue;
+                        }
+                        if ($action['id'] == $id) {
+                            $ac = $action;
+                            $action['status'] = $status;
+                            if ($err != '') {
+                                $action['error'] = $err;
+                            }
+                            if (isset($action['microtime'])) {
+                                $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
+                                unset($action['microtime']);
+                            }
+                        }
+                        $new_actions[] = $action;
+                    }
+                    $sdata = json_encode($new_actions);
+                    $this->SetValue('Queue', $sdata);
+                    IPS_SemaphoreLeave($semaphoreID);
+                    $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', err=' . $err . ', action=' . print_r($ac, true), 0);
+                } else {
+                    $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $semaphoreID . ' is not accessable', 0);
+                }
+                break;
+            case 'value':
+                $id = isset($args['id']) ? $args['id'] : '';
+                $status = isset($args['status']) ? $args['status'] : '';
+                $value = isset($args['value']) ? $args['value'] : '';
+                if (IPS_SemaphoreEnter($semaphoreID, 250)) {
+                    $ac = '';
+                    $sdata = $this->GetValue('Queue');
+                    $new_actions = [];
+                    $actions = json_decode($sdata, true);
+                    foreach ($actions as $action) {
+                        if (!isset($action['id'])) {
+                            continue;
+                        }
+                        if ($action['creation'] < time() - $max_age) {
+                            continue;
+                        }
+                        if ($action['id'] == $id) {
+                            $ac = $action;
+                            $action['status'] = $status;
+                            $action['value'] = $value;
+                            if (isset($action['microtime'])) {
+                                $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
+                                unset($action['microtime']);
+                            }
+                        }
+                        $new_actions[] = $action;
+                    }
+                    $sdata = json_encode($new_actions);
+                    $this->SetValue('Queue', $sdata);
+                    IPS_SemaphoreLeave($semaphoreID);
+                    $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', value=' . $value . ', action=' . print_r($ac, true), 0);
+                } else {
+                    $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $semaphoreID . ' is not accessable', 0);
+                }
+                break;
+            default:
+                $this->SendDebug(__FUNCTION__, 'unknown mode \'' . $mode . '\'', 0);
+                break;
+        }
+    }
+
+    public function GetQueue()
+    {
+        return $this->GetValue('Queue');
+    }
 }
