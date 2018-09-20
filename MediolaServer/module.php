@@ -45,6 +45,8 @@ class MediolaServer extends IPSModule
         // maximales Wartezeit eines Queue-Eintrags nach Task-Aufruf
         $this->RegisterPropertyInteger('max_wait', 3);
 
+		$this->RegisterTimer('Cycle', 0, 'MediolaServer_Cycle(' . $this->InstanceID . ');');
+
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
@@ -74,7 +76,19 @@ class MediolaServer extends IPSModule
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->RegisterHook('/hook/MediolaServer');
         }
+
+		$msec = $this->ReadPropertyInteger('max_age') * 1000;
+		$this->SetTimerInterval('Cycle', $msec);
     }
+
+	public function Cycle()
+	{
+		$this->CheckAction();
+		$n = $this->GetValue('UnfinishedActions');
+		$msec = $n > 0 ? 250 : $this->ReadPropertyInteger('max_age') * 1000;
+		$this->SendDebug(__FUNCTION__, 'unfinished actions=' . $n . ', msec=' . $msec, 0);
+		$this->SetTimerInterval('Cycle', $msec);
+	}
 
     public function GetConfigurationForm()
     {
@@ -159,9 +173,6 @@ class MediolaServer extends IPSModule
     // Inspired from module SymconTest/HookServe
     protected function ProcessHookData()
     {
-        $this->SendDebug(__FUNCTION__, '_SERVER=' . print_r($_SERVER, true), 0);
-        $this->SendDebug(__FUNCTION__, '_GET=' . print_r($_GET, true), 0);
-
         $root = realpath(__DIR__);
         $uri = $_SERVER['REQUEST_URI'];
         $this->SendDebug(__FUNCTION__, 'uri=' . $uri, 0);
@@ -472,6 +483,8 @@ class MediolaServer extends IPSModule
         }
         $duration = floor((microtime(true) - $time_start) * 100) / 100;
         $this->SendDebug(__FUNCTION__, 'duration=' . $duration . 's' . ($new_id != -1 ? ' => id=' . $new_id : ' => failed'), 0);
+		if ($new_id != -1)
+			$this->Cycle();
         return $new_id;
     }
 
@@ -523,12 +536,12 @@ class MediolaServer extends IPSModule
         $max_wait = $this->ReadPropertyInteger('max_wait');
 
         $r = true;
-        $total_duration = 0;
+		$total_duration = 0;
         while (true) {
             $ac = '';
             $id = '';
             $waiting = false;
-            $time_start = microtime(true);
+			$time_start = microtime(true);
             if (IPS_SemaphoreEnter($this->semaphoreID, $this->semaphoreTM)) {
                 $sdata = $this->GetValue('Queue');
                 if ($sdata == '') {
@@ -574,7 +587,7 @@ class MediolaServer extends IPSModule
 						$n_unfinished++;
                     $new_actions[] = $action;
                 }
-                $sdata = $new_action == [] ? json_encode($new_actions) : '';
+                $sdata = $new_actions != [] ? json_encode($new_actions) : '';
                 $this->SetValue('Queue', $sdata);
                 $this->SetValue('UnfinishedActions', $n_unfinished);
                 IPS_SemaphoreLeave($this->semaphoreID);
@@ -583,9 +596,7 @@ class MediolaServer extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 $ok = false;
             }
-            $duration = floor((microtime(true) - $time_start) * 100) / 100;
-            $this->SendDebug(__FUNCTION__, 'duration=' . $duration . 's, ok=' . ($ok ? 'true' : 'false') . ', waiting=' . ($waiting ? 'true' : 'false') . ', id=' . $id, 0);
-            $total_duration += $duration;
+			$total_duration += floor((microtime(true) - $time_start) * 100) / 100;
             if ($total_duration > 10 && $waiting) {
                 $this->SendDebug(__FUNCTION__, 'total_duration=' . $total_duration . ' => abort', 0);
                 $ok = false;
@@ -628,19 +639,20 @@ class MediolaServer extends IPSModule
                     $ac = '';
                     $id = '';
                     $sdata = $this->GetValue('Queue');
-                    $actions = json_decode($sdata, true);
-                    foreach ($actions as $action) {
-                        if (!isset($action['id'])) {
-                            continue;
-                        }
-                        if ($action['status'] == 'wait') {
-                            $ac = $action;
-                            $id = $action['id'];
-                            $data = $action['data'];
-                            break;
-                        }
-                    }
-
+					if ($sdata != '') {
+						$actions = json_decode($sdata, true);
+						foreach ($actions as $action) {
+							if (!isset($action['id'])) {
+								continue;
+							}
+							if ($action['status'] == 'wait') {
+								$ac = $action;
+								$id = $action['id'];
+								$data = $action['data'];
+								break;
+							}
+						}
+					}
                     if ($id != '' && isset($data['async']) && $data['async']) {
                         $new_actions = [];
 						$n_unfinished = 0;
@@ -662,7 +674,7 @@ class MediolaServer extends IPSModule
 							if (in_array($action['status'], [ 'pending', 'wait' ]))
 								$n_unfinished++;
                         }
-						$sdata = $new_action == [] ? json_encode($new_actions) : '';
+						$sdata = $new_actions != [] ? json_encode($new_actions) : '';
                         $this->SetValue('Queue', $sdata);
 						$this->SetValue('UnfinishedActions', $n_unfinished);
                     }
@@ -705,7 +717,7 @@ class MediolaServer extends IPSModule
 						if (in_array($action['status'], [ 'pending', 'wait' ]))
 							$n_unfinished++;
                     }
-					$sdata = $new_action == [] ? json_encode($new_actions) : '';
+					$sdata = $new_actions != [] ? json_encode($new_actions) : '';
                     $this->SetValue('Queue', $sdata);
 					$this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
@@ -744,7 +756,7 @@ class MediolaServer extends IPSModule
 						if (in_array($action['status'], [ 'pending', 'wait' ]))
 							$n_unfinished++;
                     }
-					$sdata = $new_action == [] ? json_encode($new_actions) : '';
+					$sdata = $new_actions != [] ? json_encode($new_actions) : '';
                     $this->SetValue('Queue', $sdata);
 					$this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
