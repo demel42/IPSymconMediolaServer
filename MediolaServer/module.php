@@ -574,7 +574,7 @@ class MediolaServer extends IPSModule
 						$n_unfinished++;
                     $new_actions[] = $action;
                 }
-                $sdata = json_encode($new_actions);
+                $sdata = $new_action == [] ? json_encode($new_actions) : '';
                 $this->SetValue('Queue', $sdata);
                 $this->SetValue('UnfinishedActions', $n_unfinished);
                 IPS_SemaphoreLeave($this->semaphoreID);
@@ -662,7 +662,7 @@ class MediolaServer extends IPSModule
 							if (in_array($action['status'], [ 'pending', 'wait' ]))
 								$n_unfinished++;
                         }
-                        $sdata = json_encode($new_actions);
+						$sdata = $new_action == [] ? json_encode($new_actions) : '';
                         $this->SetValue('Queue', $sdata);
 						$this->SetValue('UnfinishedActions', $n_unfinished);
                     }
@@ -705,7 +705,7 @@ class MediolaServer extends IPSModule
 						if (in_array($action['status'], [ 'pending', 'wait' ]))
 							$n_unfinished++;
                     }
-                    $sdata = json_encode($new_actions);
+					$sdata = $new_action == [] ? json_encode($new_actions) : '';
                     $this->SetValue('Queue', $sdata);
 					$this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
@@ -744,7 +744,7 @@ class MediolaServer extends IPSModule
 						if (in_array($action['status'], [ 'pending', 'wait' ]))
 							$n_unfinished++;
                     }
-                    $sdata = json_encode($new_actions);
+					$sdata = $new_action == [] ? json_encode($new_actions) : '';
                     $this->SetValue('Queue', $sdata);
 					$this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
