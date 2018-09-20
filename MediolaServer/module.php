@@ -25,8 +25,8 @@ class MediolaServer extends IPSModule
 {
     use MediolaServerCommon;
 
-	private $semaphoreID = __CLASS__;
-	private $semaphoreTM = 250;
+    private $semaphoreID = __CLASS__;
+    private $semaphoreTM = 250;
 
     public function Create()
     {
@@ -45,7 +45,7 @@ class MediolaServer extends IPSModule
         // maximales Wartezeit eines Queue-Eintrags nach Task-Aufruf
         $this->RegisterPropertyInteger('max_wait', 3);
 
-		$this->RegisterTimer('Cycle', 0, 'MediolaServer_Cycle(' . $this->InstanceID . ');');
+        $this->RegisterTimer('Cycle', 0, 'MediolaServer_Cycle(' . $this->InstanceID . ');');
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
@@ -77,18 +77,18 @@ class MediolaServer extends IPSModule
             $this->RegisterHook('/hook/MediolaServer');
         }
 
-		$msec = $this->ReadPropertyInteger('max_age') * 1000;
-		$this->SetTimerInterval('Cycle', $msec);
+        $msec = $this->ReadPropertyInteger('max_age') * 1000;
+        $this->SetTimerInterval('Cycle', $msec);
     }
 
-	public function Cycle()
-	{
-		$this->CheckAction();
-		$n = $this->GetValue('UnfinishedActions');
-		$msec = $n > 0 ? 250 : $this->ReadPropertyInteger('max_age') * 1000;
-		$this->SendDebug(__FUNCTION__, 'unfinished actions=' . $n . ', msec=' . $msec, 0);
-		$this->SetTimerInterval('Cycle', $msec);
-	}
+    public function Cycle()
+    {
+        $this->CheckAction();
+        $n = $this->GetValue('UnfinishedActions');
+        $msec = $n > 0 ? 250 : $this->ReadPropertyInteger('max_age') * 1000;
+        $this->SendDebug(__FUNCTION__, 'unfinished actions=' . $n . ', msec=' . $msec, 0);
+        $this->SetTimerInterval('Cycle', $msec);
+    }
 
     public function GetConfigurationForm()
     {
@@ -442,7 +442,7 @@ class MediolaServer extends IPSModule
         if (IPS_SemaphoreEnter($this->semaphoreID, $this->semaphoreTM)) {
             $sdata = $this->GetValue('Queue');
             $new_actions = [];
-			$n_unfinished = 0;
+            $n_unfinished = 0;
             if ($sdata != '') {
                 $actions = json_decode($sdata, true);
                 foreach ($actions as $action) {
@@ -456,8 +456,9 @@ class MediolaServer extends IPSModule
                         $new_id = $action['id'];
                     }
                     $new_actions[] = $action;
-					if (in_array($action['status'], [ 'pending', 'wait' ]))
-						$n_unfinished++;
+                    if (in_array($action['status'], ['pending', 'wait'])) {
+                        $n_unfinished++;
+                    }
                 }
             }
             $new_id = $new_id == -1 ? 1 : $new_id + 1;
@@ -473,30 +474,31 @@ class MediolaServer extends IPSModule
                     'status'   => 'pending',
                 ];
             $new_actions[] = $action;
-			$n_unfinished++;
+            $n_unfinished++;
             $sdata = json_encode($new_actions);
             $this->SetValue('Queue', $sdata);
-			$this->SetValue('UnfinishedActions', $n_unfinished);
+            $this->SetValue('UnfinishedActions', $n_unfinished);
             IPS_SemaphoreLeave($this->semaphoreID);
         } else {
             $this->SendDebug(__FUNCTION__, 'sempahore ' . $this->semaphoreID . ' is not accessable', 0);
         }
         $duration = floor((microtime(true) - $time_start) * 100) / 100;
         $this->SendDebug(__FUNCTION__, 'duration=' . $duration . 's' . ($new_id != -1 ? ' => id=' . $new_id : ' => failed'), 0);
-		if ($new_id != -1)
-			$this->Cycle();
+        if ($new_id != -1) {
+            $this->Cycle();
+        }
         return $new_id;
     }
 
     public function ExecuteCommand(string $room, string $device, string $action, string $value, bool $async)
     {
         $data = [
-				'mode' => 'executeCommand',
-				'room' => $room,
-				'device' => $device,
-				'action' => $action,
-				'async' => $async
-			];
+                'mode'   => 'executeCommand',
+                'room'   => $room,
+                'device' => $device,
+                'action' => $action,
+                'async'  => $async
+            ];
         if ($value != '') {
             $data['value'] = $value;
         }
@@ -507,25 +509,25 @@ class MediolaServer extends IPSModule
     public function ExecuteMakro(string $group, string $macro, bool $async)
     {
         $data = [
-				'mode' => 'executeMacro',
-				'group' => $group,
-				'macro' => $macro,
-				'action' => $action,
-				'async' => $async
-			];
+                'mode'   => 'executeMacro',
+                'group'  => $group,
+                'macro'  => $macro,
+                'action' => $action,
+                'async'  => $async
+            ];
         return $this->RunAction(json_encode($data));
     }
 
     public function GetStatus(string $room, string $device, string $variable, int $objID, bool $async)
     {
         $data = [
-				'mode'     => 'getStatus',
-				'room'     => $room,
-				'device'   => $device,
-				'variable' => $variable,
-				'objID'    => $objID,
-				'async'    => $async
-			];
+                'mode'     => 'getStatus',
+                'room'     => $room,
+                'device'   => $device,
+                'variable' => $variable,
+                'objID'    => $objID,
+                'async'    => $async
+            ];
         return $this->RunAction(json_encode($data));
     }
 
@@ -536,12 +538,12 @@ class MediolaServer extends IPSModule
         $max_wait = $this->ReadPropertyInteger('max_wait');
 
         $r = true;
-		$total_duration = 0;
+        $total_duration = 0;
         while (true) {
             $ac = '';
             $id = '';
             $waiting = false;
-			$time_start = microtime(true);
+            $time_start = microtime(true);
             if (IPS_SemaphoreEnter($this->semaphoreID, $this->semaphoreTM)) {
                 $sdata = $this->GetValue('Queue');
                 if ($sdata == '') {
@@ -561,7 +563,7 @@ class MediolaServer extends IPSModule
                     }
                 }
                 $new_actions = [];
-				$n_unfinished = 0;
+                $n_unfinished = 0;
                 foreach ($actions as $action) {
                     if (!isset($action['id'])) {
                         continue;
@@ -583,8 +585,9 @@ class MediolaServer extends IPSModule
                         $action['microtime'] = microtime(true);
                         $id = $action['id'];
                     }
-					if (in_array($action['status'], [ 'pending', 'wait' ]))
-						$n_unfinished++;
+                    if (in_array($action['status'], ['pending', 'wait'])) {
+                        $n_unfinished++;
+                    }
                     $new_actions[] = $action;
                 }
                 $sdata = $new_actions != [] ? json_encode($new_actions) : '';
@@ -596,7 +599,7 @@ class MediolaServer extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 $ok = false;
             }
-			$total_duration += floor((microtime(true) - $time_start) * 100) / 100;
+            $total_duration += floor((microtime(true) - $time_start) * 100) / 100;
             if ($total_duration > 10 && $waiting) {
                 $this->SendDebug(__FUNCTION__, 'total_duration=' . $total_duration . ' => abort', 0);
                 $ok = false;
@@ -639,23 +642,23 @@ class MediolaServer extends IPSModule
                     $ac = '';
                     $id = '';
                     $sdata = $this->GetValue('Queue');
-					if ($sdata != '') {
-						$actions = json_decode($sdata, true);
-						foreach ($actions as $action) {
-							if (!isset($action['id'])) {
-								continue;
-							}
-							if ($action['status'] == 'wait') {
-								$ac = $action;
-								$id = $action['id'];
-								$data = $action['data'];
-								break;
-							}
-						}
-					}
+                    if ($sdata != '') {
+                        $actions = json_decode($sdata, true);
+                        foreach ($actions as $action) {
+                            if (!isset($action['id'])) {
+                                continue;
+                            }
+                            if ($action['status'] == 'wait') {
+                                $ac = $action;
+                                $id = $action['id'];
+                                $data = $action['data'];
+                                break;
+                            }
+                        }
+                    }
                     if ($id != '' && isset($data['async']) && $data['async']) {
                         $new_actions = [];
-						$n_unfinished = 0;
+                        $n_unfinished = 0;
                         foreach ($actions as $action) {
                             if (!isset($action['id'])) {
                                 continue;
@@ -671,12 +674,13 @@ class MediolaServer extends IPSModule
                                 }
                             }
                             $new_actions[] = $action;
-							if (in_array($action['status'], [ 'pending', 'wait' ]))
-								$n_unfinished++;
+                            if (in_array($action['status'], ['pending', 'wait'])) {
+                                $n_unfinished++;
+                            }
                         }
-						$sdata = $new_actions != [] ? json_encode($new_actions) : '';
+                        $sdata = $new_actions != [] ? json_encode($new_actions) : '';
                         $this->SetValue('Queue', $sdata);
-						$this->SetValue('UnfinishedActions', $n_unfinished);
+                        $this->SetValue('UnfinishedActions', $n_unfinished);
                     }
                     IPS_SemaphoreLeave($this->semaphoreID);
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', action=' . print_r($ac, true), 0);
@@ -693,7 +697,7 @@ class MediolaServer extends IPSModule
                     $ac = '';
                     $sdata = $this->GetValue('Queue');
                     $new_actions = [];
-					$n_unfinished = 0;
+                    $n_unfinished = 0;
                     $actions = json_decode($sdata, true);
                     foreach ($actions as $action) {
                         if (!isset($action['id'])) {
@@ -714,12 +718,13 @@ class MediolaServer extends IPSModule
                             }
                         }
                         $new_actions[] = $action;
-						if (in_array($action['status'], [ 'pending', 'wait' ]))
-							$n_unfinished++;
+                        if (in_array($action['status'], ['pending', 'wait'])) {
+                            $n_unfinished++;
+                        }
                     }
-					$sdata = $new_actions != [] ? json_encode($new_actions) : '';
+                    $sdata = $new_actions != [] ? json_encode($new_actions) : '';
                     $this->SetValue('Queue', $sdata);
-					$this->SetValue('UnfinishedActions', $n_unfinished);
+                    $this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', err=' . $err . ', action=' . print_r($ac, true), 0);
                 } else {
@@ -735,7 +740,7 @@ class MediolaServer extends IPSModule
                     $sdata = $this->GetValue('Queue');
                     $actions = json_decode($sdata, true);
                     $new_actions = [];
-					$n_unfinished = 0;
+                    $n_unfinished = 0;
                     foreach ($actions as $action) {
                         if (!isset($action['id'])) {
                             continue;
@@ -753,54 +758,55 @@ class MediolaServer extends IPSModule
                             }
                         }
                         $new_actions[] = $action;
-						if (in_array($action['status'], [ 'pending', 'wait' ]))
-							$n_unfinished++;
+                        if (in_array($action['status'], ['pending', 'wait'])) {
+                            $n_unfinished++;
+                        }
                     }
-					$sdata = $new_actions != [] ? json_encode($new_actions) : '';
+                    $sdata = $new_actions != [] ? json_encode($new_actions) : '';
                     $this->SetValue('Queue', $sdata);
-					$this->SetValue('UnfinishedActions', $n_unfinished);
+                    $this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', value=' . $value . ', action=' . print_r($ac, true), 0);
 
-					if (isset($ac['data']['objID'])) {
-						$objID = $ac['data']['objID'];
-						$obj = IPS_GetObject($objID);
-						if ($obj['ObjectType'] == otVariable) {
-							$var = IPS_GetVariable($objID);
-							switch ($var['VariableType']) {
-								case vtBoolean:
-									switch (strtolower($value)) {
-										case 'on':
-											$v = true;
-											break;
-										case 'off':
-											$v = false;
-											break;
-										default:
-											$v = boolval($value);
-											break;
-									}
-									SetValueBoolean($objID, $v);
-									break;
-								case vtInteger:
-									SetValueInteger($objID, $value);
-									break;
-								case vtFloat:
-									SetValueFloat($objID, $value);
-									break;
-								case vtString:
-									SetValueString($objID, $value);
-									break;
-								default:
-									$this->SendDebug(__FUNCTION__, 'unsupported type of varіable ' . print_r($var, true), 0);
-									break;
-							}
-						} elseif ($obj['ObjectType'] == otScript) {
-							IPS_RunScriptEx($objID, [ 'status' => $ac['status'], 'value' => $ac['value'] ]);
-						} else {
-							$this->SendDebug(__FUNCTION__, 'unsupported type of object ' . print_r($obj, true), 0);
-						}
-					}
+                    if (isset($ac['data']['objID'])) {
+                        $objID = $ac['data']['objID'];
+                        $obj = IPS_GetObject($objID);
+                        if ($obj['ObjectType'] == otVariable) {
+                            $var = IPS_GetVariable($objID);
+                            switch ($var['VariableType']) {
+                                case vtBoolean:
+                                    switch (strtolower($value)) {
+                                        case 'on':
+                                            $v = true;
+                                            break;
+                                        case 'off':
+                                            $v = false;
+                                            break;
+                                        default:
+                                            $v = boolval($value);
+                                            break;
+                                    }
+                                    SetValueBoolean($objID, $v);
+                                    break;
+                                case vtInteger:
+                                    SetValueInteger($objID, $value);
+                                    break;
+                                case vtFloat:
+                                    SetValueFloat($objID, $value);
+                                    break;
+                                case vtString:
+                                    SetValueString($objID, $value);
+                                    break;
+                                default:
+                                    $this->SendDebug(__FUNCTION__, 'unsupported type of varіable ' . print_r($var, true), 0);
+                                    break;
+                            }
+                        } elseif ($obj['ObjectType'] == otScript) {
+                            IPS_RunScriptEx($objID, ['status' => $ac['status'], 'value' => $ac['value']]);
+                        } else {
+                            $this->SendDebug(__FUNCTION__, 'unsupported type of object ' . print_r($obj, true), 0);
+                        }
+                    }
                 } else {
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 }
