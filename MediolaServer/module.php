@@ -77,18 +77,46 @@ class MediolaServer extends IPSModule
             $this->RegisterHook('/hook/MediolaServer');
         }
 
-        $msec = $this->ReadPropertyInteger('max_age') * 1000;
-        $this->SetTimerInterval('Cycle', $msec);
+        $this->SetTimer();
     }
 
     public function Cycle()
     {
         $this->CheckAction();
-        $n = $this->GetValue('UnfinishedActions');
-        $msec = $n > 0 ? 250 : $this->ReadPropertyInteger('max_age') * 1000;
-        $this->SendDebug(__FUNCTION__, 'unfinished actions=' . $n . ', msec=' . $msec, 0);
-        $this->SetTimerInterval('Cycle', $msec);
+        $this->SetTimer();
     }
+
+    public function SetTimer()
+	{
+		$n = $this->GetValue('UnfinishedActions');
+		if ($n) {
+			$msec = 250;
+		} else {
+            $sdata = $this->GetValue('Queue');
+			if ($sdata != '') {
+				$ts = time();
+				$actions = json_decode($sdata, true);
+				foreach ($actions as $action) {
+					if (!isset($action['id'])) {
+						continue;
+					}
+					if ($action['creation'] < $ts) {
+						$id = $action['id'];
+						$ts = $action['creation'];
+					}
+				}
+				$max_age = $this->ReadPropertyInteger('max_age');
+				$sec = $ts - time() + $max_age;
+				if ($sec < 1)
+					$sec = 1;
+				$msec = $sec * 1000;
+			} else {
+				$msec = 0;
+			}
+		}
+        $this->SendDebug(__FUNCTION__, 'unfinished actions=' . $n . ', msec=' . $msec, 0);
+		$this->SetTimerInterval('Cycle', $msec);
+	}
 
     public function GetConfigurationForm()
     {
