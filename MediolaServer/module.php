@@ -43,7 +43,7 @@ class MediolaServer extends IPSModule
         // maximales Alter eines Queue-Eintrags
         $this->RegisterPropertyInteger('max_age', 60 * 60);
         // maximales Wartezeit eines Queue-Eintrags nach Task-Aufruf
-        $this->RegisterPropertyInteger('max_wait', 3);
+        $this->RegisterPropertyInteger('max_wait', 10);
 
         $this->RegisterTimer('Cycle', 0, 'MediolaServer_Cycle(' . $this->InstanceID . ');');
 
@@ -97,9 +97,6 @@ class MediolaServer extends IPSModule
                 $ts = time();
                 $actions = json_decode($sdata, true);
                 foreach ($actions as $action) {
-                    if (!isset($action['id'])) {
-                        continue;
-                    }
                     if ($action['creation'] < $ts) {
                         $id = $action['id'];
                         $ts = $action['creation'];
@@ -130,8 +127,12 @@ class MediolaServer extends IPSModule
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'password', 'caption' => 'Password'];
 
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'task_ident', 'caption' => 'Ident of mediola-task'];
+        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'max_age', 'caption' => 'Max. age of queue'];
+        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'max_wait', 'caption' => 'Max. wait for reply'];
+
         $formActions = [];
         $formActions[] = ['type' => 'Button', 'label' => 'Verify Configuration', 'onClick' => 'MediolaServer_VerifyConfiguration($id);'];
+        $formActions[] = ['type' => 'Button', 'label' => 'Show Queue', 'onClick' => 'MediolaServer_ShowQueue($id);'];
         $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
         $formActions[] = [
                             'type'    => 'Button',
@@ -196,6 +197,112 @@ class MediolaServer extends IPSModule
             $msg .= $this->Translate('check failed') . ':' . PHP_EOL;
             $msg .= '  ' . $err;
         }
+        echo $msg;
+    }
+
+    public function ShowQueue()
+    {
+		$msg = $this->Translate('Information of callback-queue') . PHP_EOL;
+		$msg .= PHP_EOL;
+
+        $sdata = $this->GetValue('Queue');
+		if ($sdata != '') {
+			$n_pending = 0;
+			$n_wait = 0;
+			$n_overdue = 0;
+			$n_done = 0;
+			$n_ok = 0;
+			$n_fail = 0;
+			$n_other = 0;
+
+			$msg .= $this->Translate('List of actions') . ':' . PHP_EOL;
+			$actions = json_decode($sdata, true);
+			foreach ($actions as $action) {
+				$id = $action['id'];
+				switch ($action['status']) {
+					case 'pending':
+						$n_pending++;
+						break;
+					case 'waiting':
+						$n_wait++;
+						break;
+					case 'overdue':
+						$n_overdue++;
+						break;
+					case 'done':
+						$n_done++;
+						break;
+					case 'ok':
+						$n_ok++;
+						break;
+					case 'fail':
+						$n_fail++;
+						break;
+					default:
+						$n_other++;
+						break;
+				}
+				$status = $action['status'];
+				$data = $action['data'];
+				$mode = $data['mode'];
+				switch ($mode) {
+					case 'executeCommand':
+						$md = 'cmd';
+						$keys = ['room', 'device', 'action', 'value'];
+						break;
+					case 'executeMacro':
+						$md = 'macro';
+						$keys = ['group', 'macro'];
+						break;
+					case 'getStatus':
+						$md = 'status';
+						$keys = ['room', 'device', 'action', 'variable'];
+						break;
+					default:
+						$keys = [];
+						break;
+				}
+
+				$r = '';
+                foreach ($keys as $key) {
+                    if (isset($data[$key])) {
+                        $r .= ($r != '' ? ', ' : '') . $this->Translate($key) . '=' . $data[$key];
+                    }
+                }
+				$s = $this->Translate('id') . '=' . $id;
+				$s .= ', ' . $this->Translate('status') . '=' . $status;
+				$s .= ', ' . $this->Translate('created') . '=' . date('H:i', $action['creation']);
+				$s .= ', ' . $md . ' [' . $r . ']';
+				if (isset($action['duration']))
+					$s .= ', ' . $this->Translate('duration') . '=' . sprintf('%.2f', $action['duration']);
+				if (isset($action['err']))
+					$s .= ', ' . $this->Translate('error') . '=' . $action['err'];
+				$msg .= '  '. $s . PHP_EOL;
+			}
+
+			$s = '';
+			if ($n_pending)
+			$s .= '  ' . $this->Translate('pending') . ': ' . $n_pending . PHP_EOL;
+			if ($n_wait)
+			$s .= '  ' . $this->Translate('waiting') . ': ' . $n_wait . PHP_EOL;
+			if ($n_overdue)
+			$s .= '  ' . $this->Translate('overdue') . ': ' . $n_overdue . PHP_EOL;
+			if ($n_done)
+			$s .= '  ' . $this->Translate('done') . ': ' . $n_done . PHP_EOL;
+			if ($n_ok)
+			$s .= '  ' . $this->Translate('ok') . ': ' . $n_ok . PHP_EOL;
+			if ($n_fail)
+			$s .= '  ' . $this->Translate('fail') . ': ' . $n_fail . PHP_EOL;
+			if ($n_other)
+			$s .= '  ' . $this->Translate('other') . ': ' . $n_other . PHP_EOL;
+
+			$msg .= PHP_EOL;
+			$msg .= $this->Translate('Count of actions') . ':' . PHP_EOL;
+			$msg .= $s . PHP_EOL;
+		} else {
+			$msg .= '  ' . $this->Translate('no entries');
+		}
+
         echo $msg;
     }
 
@@ -410,7 +517,7 @@ class MediolaServer extends IPSModule
                     continue;
                 }
                 if ($device['adr'] == $id && $device['type'] == $type) {
-                    $r = $device['state'];
+                    $r = $device['status'];
                     break;
                 }
             }
@@ -475,9 +582,6 @@ class MediolaServer extends IPSModule
             if ($sdata != '') {
                 $actions = json_decode($sdata, true);
                 foreach ($actions as $action) {
-                    if (!isset($action['id'])) {
-                        continue;
-                    }
                     if ($action['creation'] < time() - $max_age) {
                         continue;
                     }
@@ -485,7 +589,7 @@ class MediolaServer extends IPSModule
                         $new_id = $action['id'];
                     }
                     $new_actions[] = $action;
-                    if (in_array($action['status'], ['pending', 'wait'])) {
+                    if (in_array($action['status'], ['pending', 'waiting'])) {
                         $n_unfinished++;
                     }
                 }
@@ -541,7 +645,6 @@ class MediolaServer extends IPSModule
                 'mode'   => 'executeMacro',
                 'group'  => $group,
                 'macro'  => $macro,
-                'action' => $action,
                 'async'  => $async
             ];
         return $this->RunAction(json_encode($data));
@@ -580,11 +683,9 @@ class MediolaServer extends IPSModule
                 }
                 $actions = json_decode($sdata, true);
                 foreach ($actions as $action) {
-                    if (!isset($action['id'])) {
-                        continue;
-                    }
-                    if ($action['status'] == 'wait') {
-                        if (isset($action['microtime']) && (microtime(true) - $action['microtime']) > $max_wait) {
+                    if ($action['status'] == 'waiting' && isset($action['microtime'])) {
+                        $mt = (microtime(true) - $action['microtime']);
+						if ($mt > $max_wait) {
                             continue;
                         }
                         $waiting = true;
@@ -594,14 +695,11 @@ class MediolaServer extends IPSModule
                 $new_actions = [];
                 $n_unfinished = 0;
                 foreach ($actions as $action) {
-                    if (!isset($action['id'])) {
-                        continue;
-                    }
                     if ($action['creation'] < time() - 60 * 60) {
                         continue;
                     }
                     if (isset($action['microtime'])) {
-                        $mt = microtime(true) - $action['microtime'];
+                        $mt = (microtime(true) - $action['microtime']);
                         if ($mt > $max_wait) {
                             $action['status'] = 'overdue';
                             $action['duration'] = $mt;
@@ -610,11 +708,11 @@ class MediolaServer extends IPSModule
                     }
                     if ($action['status'] == 'pending' && !$waiting && $id == '') {
                         $ac = $action;
-                        $action['status'] = 'wait';
+                        $action['status'] = 'waiting';
                         $action['microtime'] = microtime(true);
                         $id = $action['id'];
                     }
-                    if (in_array($action['status'], ['pending', 'wait'])) {
+                    if (in_array($action['status'], ['pending', 'waiting'])) {
                         $n_unfinished++;
                     }
                     $new_actions[] = $action;
@@ -674,10 +772,7 @@ class MediolaServer extends IPSModule
                     if ($sdata != '') {
                         $actions = json_decode($sdata, true);
                         foreach ($actions as $action) {
-                            if (!isset($action['id'])) {
-                                continue;
-                            }
-                            if ($action['status'] == 'wait') {
+                            if ($action['status'] == 'waiting') {
                                 $ac = $action;
                                 $id = $action['id'];
                                 $data = $action['data'];
@@ -701,9 +796,10 @@ class MediolaServer extends IPSModule
                                     $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
                                     unset($action['microtime']);
                                 }
+                                $ac = $action;
                             }
                             $new_actions[] = $action;
-                            if (in_array($action['status'], ['pending', 'wait'])) {
+                            if (in_array($action['status'], ['pending', 'waiting'])) {
                                 $n_unfinished++;
                             }
                         }
@@ -729,14 +825,10 @@ class MediolaServer extends IPSModule
                     $n_unfinished = 0;
                     $actions = json_decode($sdata, true);
                     foreach ($actions as $action) {
-                        if (!isset($action['id'])) {
-                            continue;
-                        }
                         if ($action['creation'] < time() - $max_age) {
                             continue;
                         }
                         if ($action['id'] == $id) {
-                            $ac = $action;
                             $action['status'] = $status;
                             if ($err != '') {
                                 $action['error'] = $err;
@@ -745,9 +837,10 @@ class MediolaServer extends IPSModule
                                 $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
                                 unset($action['microtime']);
                             }
+                            $ac = $action;
                         }
                         $new_actions[] = $action;
-                        if (in_array($action['status'], ['pending', 'wait'])) {
+                        if (in_array($action['status'], ['pending', 'waiting'])) {
                             $n_unfinished++;
                         }
                     }
@@ -756,6 +849,8 @@ class MediolaServer extends IPSModule
                     $this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', err=' . $err . ', action=' . print_r($ac, true), 0);
+					if ($err != '')
+						$this->LogMessage('task failed: err=' . $ac['err'] . ', action=' . print_r($ac, true), KL_WARNING);
                 } else {
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 }
@@ -771,23 +866,20 @@ class MediolaServer extends IPSModule
                     $new_actions = [];
                     $n_unfinished = 0;
                     foreach ($actions as $action) {
-                        if (!isset($action['id'])) {
-                            continue;
-                        }
                         if ($action['creation'] < time() - $max_age) {
                             continue;
                         }
                         if ($action['id'] == $id) {
-                            $ac = $action;
                             $action['status'] = $status;
                             $action['value'] = $value;
                             if (isset($action['microtime'])) {
                                 $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
                                 unset($action['microtime']);
                             }
+                            $ac = $action;
                         }
                         $new_actions[] = $action;
-                        if (in_array($action['status'], ['pending', 'wait'])) {
+                        if (in_array($action['status'], ['pending', 'waiting'])) {
                             $n_unfinished++;
                         }
                     }
@@ -850,4 +942,50 @@ class MediolaServer extends IPSModule
     {
         return $this->GetValue('Queue');
     }
+
+    public function GetAction(int $id)
+    {
+		$ret = '';
+
+        $sdata = $this->GetValue('Queue');
+		if ($sdata != '') {
+			$actions = json_decode($sdata, true);
+			foreach ($actions as $action) {
+				if ($action['id'] == $id) {
+					$ret = $action;
+					break;
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+    public function GetActionStatus(int $id, int $max_wait)
+    {
+		$ret = '';
+		$time_start = microtime(true);
+		while (true) {
+			$sdata = $this->GetValue('Queue');
+			if ($sdata != '') {
+				$actions = json_decode($sdata, true);
+				foreach ($actions as $action) {
+					if ($action['id'] == $id) {
+						if (!in_array($action['status'], ['pending', 'waiting'])) {
+							$ret = $action['status'];
+						}
+						break;
+					}
+				}
+			}
+			if ((microtime(true) - $time_start) >= $max_wait) break;
+			if ($ret != '')
+				break;
+			IPS_Sleep(250);
+		}
+
+        $duration = floor((microtime(true) - $time_start) * 100) / 100;
+		$this->SendDebug(__FUNCTION__, 'id=' . $id . ', status=' . $ret . ', duration=' . $duration, 0);
+		return $ret;
+	}
 }
