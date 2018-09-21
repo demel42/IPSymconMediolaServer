@@ -46,7 +46,23 @@ In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie
 
 ### zentrale Funktion
 
-`bool xxxxx(integer $InstanzID)`<br>
+`bool function CallTask(int $InstanzID, string $args)`<br>
+
+`bool SetValueString(int $InstanzID, string $adr, string $sval)`<br>
+`bool SetValueBoolean(int $InstanzID, string $adr, boolean $bval)`<br>
+`bool SetValueInteger(int $InstanzID, string $adr, int $ival)`<br>
+`bool SetValueFloat(int $InstanzID, string $adr, float $fval)`<br>
+
+`string GetValueString(int $InstanzID, string $adr)`<br>
+`bool GetValueBoolean(int $InstanzID, string $adr)`<br>
+`int GetValueInteger(int $InstanzID, string $adr)`<br>
+`float GetValueFloat(int $InstanzID, string $adr)`<br>
+
+`int RunAction(int $InstanzID, string $data)`<br>
+`int ExecuteMakro(int $InstanzID, string $group, string $macro, bool $async)`<br>
+`int GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $async)`<br>
+
+`string GetActionStatus(int $id, int $max_wait)`<br>
 
 ## 5. Konfiguration:
 
@@ -58,12 +74,17 @@ In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie
 | Port                                 | integer  | 80              | Http-Port, für den Gateway ist das 80, für den NEO Server typischerweise 8088 |
 | Accesstoken                          | string   |                 | Accesstoken des Gateway |
 | Passwort                             | string   |                 | alternativ zum _Accesstoken_ |
+|                                      |          |                 | |
+| Schlüssel des Mediola-Tasks          | string   | ips-callback=1  | Schlüssel der HTTP-Aufrufs des Tasks im Blockeditor |
+| max. Alter der Queue                 | integer  | 3600            | maximales Altern eines Queue-Eintrags |
+| max. Wartezeit                       | integer  | 10              | maximal Wartezeit nach Aufruf des Tasks vom IPS bis zur Antwort vom Mediola-Server |
 
 #### Schaltflächen
 
 | Bezeichnung                  | Beschreibung |
 | :--------------------------: | :-------------------------------------------------------------: |
 | Prüfen Konfiguration         | Zugriff prüfen und Informationen vom Gateway / NEO Server holen |
+| Queue anzeigen               | Status der Queue der Aktionen anzeigen |
 
 ## 6. Anhang
 
@@ -75,5 +96,5 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 0.9 @ 17.09.2018 16:58<br>
+- 1.0 @ 17.09.2018 16:58<br>
   Initiale Version

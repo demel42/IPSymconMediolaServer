@@ -6,6 +6,9 @@
 			"Port": "Port",
 			"Accesstoken": "Accesstoken",
 			"Password": "Passwort",
+			"Ident of mediola-task": "Schlüssel des Mediola-Tasks",
+			"Max. age of queue": "max. Alter der Queue",
+			"Max. wait for reply": "max. Wartezeit",
 
 			"Verify Configuration": "Konfigururation prüfen",
 			"Show Queue": "Queue anzeigen",
