@@ -45,7 +45,7 @@ Der Ablauf ist we folgt
 Der Ablauf ist leider asynchron, das bedeutet, das nach dem Auslösen des Aufrufs (z.B. _ExecuteCommand_) mit direkt ein Ergebnis bekommt. Braucht man das Ergebinis, kann man mit _GetActionStatus_ darauf warten.
 Bei der Abfrage eines Gerätestatus wird bei Eingang der Antwort vom _MediolaServer_ eine Variable gesetzt oder ein Script aufgerufen.
 
-In einer Varianle _Queue_ werden die anstehenden bzw. abgelaufenen Aktionen für eine gewisse Zeit aufbewahrt (_max. Alter der Queue_) und dann gelöscht.
+In einer Variable _Queue_ werden die anstehenden bzw. abgelaufenen Aktionen für eine gewisse Zeit aufbewahrt (_max. Alter der Queue_) und dann gelöscht.
 
 Bei den Funktionen gibt es den Parameter _wait4reply_, ist er _true_, wird die nächste Aktion in der Queue erst aufgerufen, wenn es eine Rückmeldung des Status (_status_) oder Wertes (_value_) vom _MediolaServer_ gegeben hat. Meiner Beobachtung nach kann man aber im Regelfall _wait4reply_ = _false_ verwenden.
 
@@ -82,10 +82,7 @@ Nun die Zugangsdaten ausfüllen, dabei muss entweder der Accesstoken oder das Pa
 
 Im Mediola Gateway bzw. dem NEO-Server muss ein Script angelegt werden; siehe [docs/ips-callback.js](https://github.com/demel42/IPSymconMediolaServer/blob/master/docs/ips-callback.js), hier nur bitte die Zugangsdaten des IPS-Systems anpassen.
 
-Weiterhin muss ein Task angelegt werden, das als Auslöser _HTTP_ vorsieht und das zuvor angelegte Script aufruft.
-
-![Mediola-Task](docs/ips-callback-task.png?raw=true "Task im Blockeditor")
-
+Weiterhin muss ein Task angelegt werden, das als Auslöser _HTTP_ vorsieht und das zuvor angelegte Script aufruft (siehe unten).
 
 ## 4. Funktionsreferenz
 
@@ -165,17 +162,29 @@ Abfrage von Variablenwerten des _MediolaServer_s, die _adr_ ist die im Gerätema
 
 ### Beispiele
 
+#### Callback-Task
+
+![Mediola-Task](docs/ips-callback-task.png?raw=true "Task im Blockeditor")
+
+#### Geräteaktion
+
 ![Mediola-Task](docs/Geraeteaktion_1a.png?raw=true "Geräteaktion 1a") ![Mediola-Task](docs/Geraeteaktion_1b.png?raw=true "Geräteaktion 1b")
 
 `ExecuteCommand(4711, 'Gerät', 'Terrasse', 'up', '', false);`
+
+#### Geräteaktion mit variablem Parameter
 
 ![Mediola-Task](docs/Geraeteaktion_2a.png?raw=true "Geräteaktion 2a") ![Mediola-Task](docs/Geraeteaktion_2b.png?raw=true "Geräteaktion 2b")
 
 `ExecuteCommand(4711, 'Gerät', 'Terrasse', 'moveTo', '50', false);`
 
+#### Gerätestatus
+
 ![Mediola-Task](docs/Geraetestatus_1a.png?raw=true "Gerätestatus 1a") ![Mediola-Task](docs/Geraetestatus_1b.png?raw=true "Gerätestatus 1b")
 
 `GetStatus(4711, 'Gerät', 'Terrasse', 'position', false);`
+
+##### Makro
 
 ![Mediola-Task](docs/Makro_1a.png?raw=true "Makro 1a") ![Mediola-Task](docs/Makro_1b.png?raw=true "Makro 1b")
 
