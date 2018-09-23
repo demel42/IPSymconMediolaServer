@@ -470,8 +470,9 @@ class MediolaServer extends IPSModule
 
         $value = rawurlencode($sval);
         $r = $this->setVal($adr, 'STRING', $value);
-        $s = 'set var ' . $adr . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $s = 'set var adr=' . $adr . ', sval=' . $sval . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
+        $s = 'set var \'' . $adr . '\' to value \'' . $sval . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
         return $r;
     }
@@ -482,8 +483,9 @@ class MediolaServer extends IPSModule
 
         $value = $bval ? 'on' : 'off';
         $r = $this->setVal($adr, 'ONOFF', $value);
-        $s = 'set var ' . $adr . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $s = 'set var adr=' . $adr . ', bval=' . ($bval ? 'true' : 'false') . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
+        $s = 'set var \'' . $adr . '\' to value \'' . ($bval ? 'true' : 'false') . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
         return $r;
     }
@@ -497,8 +499,9 @@ class MediolaServer extends IPSModule
             $value = '0' . $value;
         }
         $r = $this->setVal($adr, 'INT', $value);
-        $s = 'set var ' . $adr . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $s = 'set var adr=' . $adr . ', ival=' . $ival . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
+        $s = 'set var \'' . $adr . '\' to value \'' . $ival . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
         return $r;
     }
@@ -512,8 +515,9 @@ class MediolaServer extends IPSModule
             $value = '0' . $value;
         }
         $r = $this->setVal($adr, 'FLOAT', $value);
-        $s = 'set var ' . $adr . ' to value ' . $value . ' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $s = 'set var adr=' . $adr . ', fval=' . $fval . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
+        $s = 'set var \'' . $adr . '\' to value \'' . $fval . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
         return $r;
     }
