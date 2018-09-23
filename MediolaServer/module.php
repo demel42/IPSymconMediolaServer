@@ -65,11 +65,19 @@ class MediolaServer extends IPSModule
         parent::ApplyChanges();
 
         $vpos = 0;
-
         $this->MaintainVariable('Queue', $this->Translate('CallBack-Queue'), vtString, '', $vpos++, true);
         $this->MaintainVariable('UnfinishedActions', $this->Translate('Count of unfinished actions'), vtInteger, '', $vpos++, true);
 
-        $this->SetStatus(102);
+        $hostname = $this->ReadPropertyString('hostname');
+        $port = $this->ReadPropertyInteger('port');
+        $accesstoken = $this->ReadPropertyString('accesstoken');
+        $password = $this->ReadPropertyString('password');
+
+		if ($hostname == '' || $port == 0 || ! ($accesstoken != '' || $password != ''))
+			$this->SetStatus(201);
+		) else {
+			$this->SetStatus(102);
+		}
 
         // Inspired by module SymconTest/HookServe
         // Only call this in READY state. On startup the WebHook instance might not be available yet
