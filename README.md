@@ -20,9 +20,45 @@
 
 ## 1. Funktionsumfang
 
+Diese Modul stellt einige Hilfsfunktionen zum Umgang mit dem Mediola Gateway oder dem NEO Server zur Verfügung (im folgenden _MediolaServer_ genannt).
+
+### CallTask
+
+Aufruf von beliebigen Tasks auf dem _MediolaServer_.
+
+### ExecuteCommand / ExecuteMakro / GetStatus
+
+Hiermit können alle Geräteaktionen, die auf den _MediolaServer_ verfügbar sind, aufgerufen werden, ebenso die definierten Makros sowie jeder verfügbare Gerätstatus angerufen werden.
+
+Wichtig: das macht überhaupt keinen Sinn für Geräte, die nativ im IPS eingebunden werden können (wie z.B. HomeMatic), für viele Geräte, die am Gateway angelernt sind, gibt es direkte Aufrufe, die in dem Modul [Wolbolar/IPSymconAIOGateway](https://github.com/Wolbolar/IPSymconAIOGateway) angedeckt sind. Es gibt aber Geräte, die werde so noch so zu erreichen sind, aber von Mediola angebunden wurden. z.B. der Warema-Gateway (bei mir mit einer Markiese) ist in Mediola angebunden, die API ist nicht öffentlich und zudem verschlüsselt.
+Man könnte natürlich für jede Funktion ein eigenen Task machen, aber das ist nicht wirklich umsetzbar bei Aufrufen mit variablem Anteil (Markiese auf Postion 50% fahren).
+
+Daher habe ich ein Interface geschaffen, das über einen generellen Task auf dem _MediolaServer_ jede dort verfügbaren Geräte-Aktion aufrufen, jeden Gerätes-Status abrufen und auch jedes Makro auslösen kann.
+
+Der Ablauf ist we folgt
+ - Aufruf des o.g. generellen Task auf dem _MediolaServer_
+ - dieser ruft ein WebHook auf dem IPS auf (_query_), als Antwort auf diese Query liefert IPS die Steuerinformationen
+ - je mach Funktion wird dann 
+   - die Geräteaktion / das Makro aufgerufen und nach Abschluss dann wieder der WebHook mit Status-Information aufgerufen (_status_)
+   - der Gerätestatus angefragt und der WebHook mit dem Wert des Gerätestatus aufgerufen (_value_)
+
+Der Ablauf ist leider asynchron, das bedeutet, das nach dem Auslösen des Aufrufs (z.B. _ExecuteCommand_) mit direkt ein Ergebnis bekommt. Braucht man das Ergebinis, kann man mit _GetActionStatus_ darauf warten.
+Bei der Abfrage eines Gerätestatus wird bei Eingang der Antwort vom _MediolaServer_ eine Variable gesetzt oder ein Script aufgerufen.
+
+In einer Varianle _Queue_ werden die anstehenden bzw. abgelaufenen Aktionen für eine gewisse Zeit aufbewahrt (_max. Alter der Queue_) und dann gelöscht.
+
+Bei den Funktionen gibt es den Parameter _async_, ist er _false_, wird die nächste AKtion in der Queue erst aufgerufen, wenn es eine Rückmeldung des Status (_status_) oder Wertes (_value_) vom _MediolaServer_ gegeben hat. Meiner Beobachtung nach kann man aber im Regelfall _async_ = _true_ verwenden.
+
+Ein Aufruf eines Tasts, der nicht innerhalb einer bsetimmten Zeit (_max. Wartezeit_) abgesickelt ist, wird aus _überfällig_ markiert und nicht mehr behandelt.
+
+### SetValue/GetValue
+
+Umgang mit Variablen auf dem Gatewやy / NEO Server
+
 ## 2. Voraussetzungen
 
  - IP-Symcon ab Version 5
+ - Mediola Gateway V5/V5+ oder NEO Server (auf beliebiger Plattform)
 
 ## 3. Installation
 
@@ -42,27 +78,60 @@ Anschließend erscheint ein Eintrag für das Modul in der Liste der Instanz _Mod
 
 In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie, unter der man die Instanz hinzufügen will, und Hersteller _Mediola_ und als Gerät _Gateway V5/V5+/NEO Server_ auswählen.
 
+Nun die Zugangsdaten ausfüllen, dabei muss entweder der Accesstoken oder das Passwort angegeben werden. Der Accesstoken ist der Parameter, der z.B. im Blockeditor bei _at=_ angezeigt wird (siehe Snap).
+
+Im Mediola Gateway bzw. dem NEO-Server muss ein Script angelegt werden; siehe [docs/ips-callback.js](http://github.com/demel42/IPSymconMediolaGateway/docs/ips-callback.js), hier nur die Zugangsdaten des IPS-Systems anpassen.
+
+Weiterhin muss ein Task angelegt werden, das als Auslöser _HTTP_ vorsieht und das zuvor angelegte Script aufruft.
+
+![Mediola-Task](docs/ips-callback-task.png?raw=true "Task im Blockeditor")
+
+
 ## 4. Funktionsreferenz
 
-### zentrale Funktion
-
 `bool function CallTask(int $InstanzID, string $args)`<br>
+Aufruf eine Tasks auf dem _MediolaServer_. _args_ ist die json-kodierte Liste des (bzw. der) Schlüssel mit dem Wert aus dem Blockeditor - Format so:
+```
+$args = ['test' => '1'];
+
+```
+Rückgabewert ist _false_, wenn dieser Task nicht existiert bzw. nicht aufgerufen werden konnte.
+
+`ibt ExecuteCommand(int $InstanzID, string $room, string $device, string $action, string $value, bool $async)`<br>
+Aufrufe einer beliebigen Geräteaktion über den o.g. Task.
+Rückgabewert ist die ID der Aktion.
+
+`int ExecuteMakro(int $InstanzID, string $group, string $macro, bool $async)`<br>
+Aufrufe eines Makros über den o.g. Task.
+Rückgabewert ist die ID der Aktion.
+
+`int GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $async)`<br>
+Abfrage eines Gerätestats über den o.g. Task. _objID_ ist entweder die ID einer Variablen (mit zum Gerätestatus passenden Typ) oder ein Script, dem das Ergebnis übergeben wird.
+
+```
+<?
+
+$status = $_IPS['status'];
+$value = $_IPS['value'];
+
+IPS_LogMessage(IPS_GetName($_IPS['SELF']) . '(' . $_IPS['SELF'] . ')', '_IPS=' . print_r($_IPS, true));
+```
+Rückgabewert ist die ID der Aktion.
+
+`string GetActionStatus(int $id, int $max_wait)`<br>
+Ergebnis eines vorherigen Task-Aufrufs. Die Funktion wartet maximal bis _max_wait_ Sekunden; ist das Ergebnis ein leerer String, ist die Funktion noch nicht abgewickelt.
 
 `bool SetValueString(int $InstanzID, string $adr, string $sval)`<br>
 `bool SetValueBoolean(int $InstanzID, string $adr, boolean $bval)`<br>
 `bool SetValueInteger(int $InstanzID, string $adr, int $ival)`<br>
 `bool SetValueFloat(int $InstanzID, string $adr, float $fval)`<br>
+Setzen von Variablenwerten auf dem _MediolaServer_, die _adr_ ist die im Gerätemanager angegebene Adresse der Variablen.
 
 `string GetValueString(int $InstanzID, string $adr)`<br>
 `bool GetValueBoolean(int $InstanzID, string $adr)`<br>
 `int GetValueInteger(int $InstanzID, string $adr)`<br>
 `float GetValueFloat(int $InstanzID, string $adr)`<br>
-
-`int RunAction(int $InstanzID, string $data)`<br>
-`int ExecuteMakro(int $InstanzID, string $group, string $macro, bool $async)`<br>
-`int GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $async)`<br>
-
-`string GetActionStatus(int $id, int $max_wait)`<br>
+Abfrage von Variablenwerten des _MediolaServer_s, die _adr_ ist die im Gerätemanager angegebene Adresse der Variablen.
 
 ## 5. Konfiguration:
 
@@ -76,14 +145,14 @@ In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie
 | Passwort                             | string   |                 | alternativ zum _Accesstoken_ |
 |                                      |          |                 | |
 | Schlüssel des Mediola-Tasks          | string   | ips-callback=1  | Schlüssel der HTTP-Aufrufs des Tasks im Blockeditor |
-| max. Alter der Queue                 | integer  | 3600            | maximales Altern eines Queue-Eintrags |
-| max. Wartezeit                       | integer  | 10              | maximal Wartezeit nach Aufruf des Tasks vom IPS bis zur Antwort vom Mediola-Server |
+| max. Alter der Queue                 | integer  | 3600            | maximales Alter eines Queue-Eintrags (in Sekunden) |
+| max. Wartezeit                       | integer  | 10              | maximal Wartezeit nach Aufruf des Tasks vom IPS bis zur Antwort vom Mediola-Server (in Sekunden) |
 
 #### Schaltflächen
 
 | Bezeichnung                  | Beschreibung |
 | :--------------------------: | :-------------------------------------------------------------: |
-| Prüfen Konfiguration         | Zugriff prüfen und Informationen vom Gateway / NEO Server holen |
+| Prüfen Konfiguration         | Zugriff prüfen und Informationen vom _MediolaServer_ holen      |
 | Queue anzeigen               | Status der Queue der Aktionen anzeigen |
 
 ## 6. Anhang
