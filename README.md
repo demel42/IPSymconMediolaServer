@@ -80,7 +80,7 @@ In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie
 
 Nun die Zugangsdaten ausfüllen, dabei muss entweder der Accesstoken oder das Passwort angegeben werden. Der Accesstoken ist der Parameter, der z.B. im Blockeditor bei _at=_ angezeigt wird (siehe Snap).
 
-Im Mediola Gateway bzw. dem NEO-Server muss ein Script angelegt werden; siehe [docs/ips-callback.js](http://github.com/demel42/IPSymconMediolaGateway/docs/ips-callback.js), hier nur die Zugangsdaten des IPS-Systems anpassen.
+Im Mediola Gateway bzw. dem NEO-Server muss ein Script angelegt werden; siehe [docs/ips-callback.js](https://github.com/demel42/IPSymconMediolaServer/blob/master/docs/ips-callback.js), hier nur bitte die Zugangsdaten des IPS-Systems anpassen.
 
 Weiterhin muss ein Task angelegt werden, das als Auslöser _HTTP_ vorsieht und das zuvor angelegte Script aufruft.
 
@@ -97,7 +97,7 @@ $args = ['test' => '1'];
 ```
 Rückgabewert ist _false_, wenn dieser Task nicht existiert bzw. nicht aufgerufen werden konnte.
 
-`ibt ExecuteCommand(int $InstanzID, string $room, string $device, string $action, string $value, bool $async)`<br>
+`int ExecuteCommand(int $InstanzID, string $room, string $device, string $action, string $value, bool $async)`<br>
 Aufrufe einer beliebigen Geräteaktion über den o.g. Task.
 Rückgabewert ist die ID der Aktion.
 
@@ -106,7 +106,7 @@ Aufrufe eines Makros über den o.g. Task.
 Rückgabewert ist die ID der Aktion.
 
 `int GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $async)`<br>
-Abfrage eines Gerätestats über den o.g. Task. _objID_ ist entweder die ID einer Variablen (mit zum Gerätestatus passenden Typ) oder ein Script, dem das Ergebnis übergeben wird.
+Abfrage eines Gerätestats über den o.g. Task. _objID_ ist entweder die ID einer Variablen (mit zum Mediola-Gerätestatus passenden Typ) oder ein Script, dem das Ergebnis übergeben wird.
 
 ```
 <?
@@ -157,7 +157,7 @@ Abfrage von Variablenwerten des _MediolaServer_s, die _adr_ ist die im Gerätema
 
 ## 6. Anhang
 
-GUIDs
+### GUIDs
 
 - Modul: `{C0BD3A9B-D600-4B78-B9CC-173AC2819CE5}`
 - Instanzen:
