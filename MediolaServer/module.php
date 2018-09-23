@@ -759,7 +759,7 @@ class MediolaServer extends IPSModule
                 IPS_Sleep(100);
             } else {
                 $s = '';
-                $keys = ['mode', 'room', 'device', 'action', 'variable'];
+                $keys = ['mode', 'room', 'device', 'action', 'value', 'group', 'macro', 'variable'];
                 foreach ($keys as $key) {
                     if (isset($ac['data'][$key])) {
                         $s .= ($s != '' ? ', ' : '') . $key . '=' . $ac['data'][$key];
@@ -782,6 +782,7 @@ class MediolaServer extends IPSModule
         switch ($mode) {
             case 'query':
                 $data = '';
+				$ret = '';
                 if (IPS_SemaphoreEnter($this->semaphoreID, $this->semaphoreTM)) {
                     $ac = '';
                     $id = '';
@@ -825,11 +826,13 @@ class MediolaServer extends IPSModule
                         $this->SetValue('UnfinishedActions', $n_unfinished);
                     }
                     IPS_SemaphoreLeave($this->semaphoreID);
+					$ret = $data != '' ? json_encode($data) : ''; 
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', action=' . print_r($ac, true), 0);
+					IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', data=' . $ret);
                 } else {
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ': sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 }
-                echo $data != '' ? json_encode($data) : '';
+                echo $ret;
                 break;
             case 'status':
                 $id = isset($args['id']) ? $args['id'] : '';
@@ -869,6 +872,7 @@ class MediolaServer extends IPSModule
                     if ($err != '') {
                         $this->LogMessage('task failed: err=' . $ac['err'] . ', action=' . print_r($ac, true), KL_WARNING);
                     }
+					IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', status=' . $status . ($err != '' ? ', err=' . $err : ''));
                 } else {
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 }
@@ -906,6 +910,7 @@ class MediolaServer extends IPSModule
                     $this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', value=' . $value . ', action=' . print_r($ac, true), 0);
+					IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', status=' . $status . ', value=' . $value);
 
                     if (isset($ac['data']['objID'])) {
                         $objID = $ac['data']['objID'];
