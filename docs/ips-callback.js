@@ -3,20 +3,18 @@
  *
  */
 
-
 // Hostname/IP des IPS-Servers
-var ips_hostname  = "";
+var ips_hostname = "";
 
 // Portnummer
-var ips_port      = "3777";
+var ips_port     = "3777";
 
-// Bezeichnung ѕes WebHook des Moduls 'MediolaServer'
-var ips_webhook   = "/hook/MediolaServer";
-
+// Bezeichnung des WebHook des Moduls 'MediolaServer'
+var ips_webhook  = "/hook/MediolaServer";
 
 /****************************************************************************/
 
-var ips_url       = "http://" + ips_hostname + ":" + ips_port + ips_webhook;
+var ips_url = "http://" + ips_hostname + ":" + ips_port + ips_webhook;
 
 var http = require('http');
 
@@ -29,16 +27,17 @@ const sendReply = function(jdata, mode, status, err, value) {
         url += "&err=" + decodeURI(err);
     if (value !== '')
         url += "&value=" + decodeURI(value);
-    console.log("id=" + id + ", status=" + status + ", err=" + err + ", value=" + value + ", url=", url);
+    console.log("reply: id=" + id + ", status=" + status + ", err=" + err + ", value=" + value + ", url=", url);
     var req = http.get(url);
 }
     
 const run_executeCommand = function(jdata) {
+    var mode = jdata.mode;
     var room = jdata.room ? jdata.room : '';
     var device = jdata.device ? jdata.device : '';
     var action = jdata.action ? jdata.action : '';
     var value = jdata.value ? jdata.value : '';
-    console.log("room=" + room + ", device=" + device + ", action=" + action + ", value=" + value);
+    console.log("mode=" + mode + ": room=" + room + ", device=" + device + ", action=" + action + ", value=" + value);
     if (room === '' || device === '' || action === '') {
         err = "malformed request: " + "room='" + room + "', device='" + device + "', action='" + action + "'";
         sendReply(jdata, "status", "fail", err, '');
@@ -65,9 +64,10 @@ const run_executeCommand = function(jdata) {
 };
 
 const run_executeMacro = function(jdata) {
+    var mode = jdata.mode;
     var group = jdata.group ? jdata.group : '';
     var macro = jdata.macro ? jdata.macro : '';
-    console.log("group=" + group + ", macro=" + macro);
+    console.log("mode=" + mode + ": group=" + group + ", macro=" + macro);
     if (group === '' || macro === '') {
         err = "malformed request: " + "group='" + group + "', macro='" + macro + "'";
         sendReply(jdata, "status", "fail", err, '');
@@ -89,10 +89,11 @@ const run_executeMacro = function(jdata) {
 };
 
 const run_getStatus = function(jdata) {
+    var mode = jdata.mode;
     var room = jdata.room ? jdata.room : '';
     var device = jdata.device ? jdata.device : '';
     var variable = jdata.variable ? jdata.variable : '';
-    console.log("room=" + room + ", device=" + device + ", variable=" + variable);
+    console.log("mode=" + mode + ": room=" + room + ", device=" + device + ", variable=" + variable);
     if (room === '' || device === '' || variable === '') {
         err = "malformed request: " + "room='" + room + "', device='" + device + "', variable='" + variable + "'";
         sendReply(jdata, "status", "fail", err, '');
@@ -128,8 +129,6 @@ var req = http.get(url, function(res) {
         console.log("data=", data);
         var jdata = JSON.parse(data);
         var mode = jdata.mode;
-        console.log("mode=" + mode);
-
         switch (mode) {
             case 'executeCommand':
                 run_executeCommand(jdata);
