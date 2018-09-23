@@ -47,7 +47,7 @@ Bei der Abfrage eines Gerätestatus wird bei Eingang der Antwort vom _MediolaSer
 
 In einer Varianle _Queue_ werden die anstehenden bzw. abgelaufenen Aktionen für eine gewisse Zeit aufbewahrt (_max. Alter der Queue_) und dann gelöscht.
 
-Bei den Funktionen gibt es den Parameter _wait4reply_, ist er _false_, wird die nächste Aktion in der Queue erst aufgerufen, wenn es eine Rückmeldung des Status (_status_) oder Wertes (_value_) vom _MediolaServer_ gegeben hat. Meiner Beobachtung nach kann man aber im Regelfall _wait4reply_ = _true_ verwenden.
+Bei den Funktionen gibt es den Parameter _wait4reply_, ist er _true_, wird die nächste Aktion in der Queue erst aufgerufen, wenn es eine Rückmeldung des Status (_status_) oder Wertes (_value_) vom _MediolaServer_ gegeben hat. Meiner Beobachtung nach kann man aber im Regelfall _wait4reply_ = _false_ verwenden.
 
 Ein Aufruf eines Tasts, der nicht innerhalb einer bsetimmten Zeit (_max. Wartezeit_) abgesickelt ist, wird aus _überfällig_ markiert und nicht mehr behandelt.
 
@@ -167,19 +167,19 @@ Abfrage von Variablenwerten des _MediolaServer_s, die _adr_ ist die im Gerätema
 
 ![Mediola-Task](docs/Geraeteaktion_1a.png?raw=true "Geräteaktion 1a") ![Mediola-Task](docs/Geraeteaktion_1b.png?raw=true "Geräteaktion 1b")
 
-`ExecuteCommand(4711, 'Gerät', 'Terrasse', 'up', '', true);`
+`ExecuteCommand(4711, 'Gerät', 'Terrasse', 'up', '', false);`
 
 ![Mediola-Task](docs/Geraeteaktion_2a.png?raw=true "Geräteaktion 2a") ![Mediola-Task](docs/Geraeteaktion_2b.png?raw=true "Geräteaktion 2b")
 
-`ExecuteCommand(4711, 'Gerät', 'Terrasse', 'moveTo', '50', true);`
+`ExecuteCommand(4711, 'Gerät', 'Terrasse', 'moveTo', '50', false);`
 
 ![Mediola-Task](docs/Geraetestatus_1a.png?raw=true "Gerätestatus 1a") ![Mediola-Task](docs/Geraetestatus_1b.png?raw=true "Gerätestatus 1b")
 
-`GetStatus(4711, 'Gerät', 'Terrasse', 'position', true);`
+`GetStatus(4711, 'Gerät', 'Terrasse', 'position', false);`
 
 ![Mediola-Task](docs/Makro_1a.png?raw=true "Makro 1a") ![Mediola-Task](docs/Makro_1b.png?raw=true "Makro 1b")
 
-`ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', true);`
+`ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
 

@@ -614,8 +614,8 @@ class MediolaServer extends IPSModule
             $new_id = $new_id == -1 ? 1 : $new_id + 1;
             $s = json_decode($data, true);
             $s['id'] = $new_id;
-            if (!isset($s['async'])) {
-                $s['async'] = true;
+            if (!isset($s['wait4reply'])) {
+                $s['wait4reply'] = false;
             }
             $action = [
                     'id'       => $new_id,
@@ -640,14 +640,14 @@ class MediolaServer extends IPSModule
         return $new_id;
     }
 
-    public function ExecuteCommand(string $room, string $device, string $action, string $value, bool $async)
+    public function ExecuteCommand(string $room, string $device, string $action, string $value, bool $wait4reply)
     {
         $data = [
-                'mode'   => 'executeCommand',
-                'room'   => $room,
-                'device' => $device,
-                'action' => $action,
-                'async'  => $async
+                'mode'       => 'executeCommand',
+                'room'       => $room,
+                'device'     => $device,
+                'action'     => $action,
+                'wait4reply' => $wait4reply
             ];
         if ($value != '') {
             $data['value'] = $value;
@@ -656,26 +656,26 @@ class MediolaServer extends IPSModule
         return $this->RunAction(json_encode($data));
     }
 
-    public function ExecuteMakro(string $group, string $macro, bool $async)
+    public function ExecuteMakro(string $group, string $macro, bool $wait4reply)
     {
         $data = [
-                'mode'   => 'executeMacro',
-                'group'  => $group,
-                'macro'  => $macro,
-                'async'  => $async
+                'mode'       => 'executeMacro',
+                'group'      => $group,
+                'macro'      => $macro,
+                'wait4reply' => $wait4reply
             ];
         return $this->RunAction(json_encode($data));
     }
 
-    public function GetStatus(string $room, string $device, string $variable, int $objID, bool $async)
+    public function GetStatus(string $room, string $device, string $variable, int $objID, bool $wait4reply)
     {
         $data = [
-                'mode'     => 'getStatus',
-                'room'     => $room,
-                'device'   => $device,
-                'variable' => $variable,
-                'objID'    => $objID,
-                'async'    => $async
+                'mode'       => 'getStatus',
+                'room'       => $room,
+                'device'     => $device,
+                'variable'   => $variable,
+                'objID'      => $objID,
+                'wait4reply' => $wait4reply
             ];
         return $this->RunAction(json_encode($data));
     }
@@ -797,7 +797,7 @@ class MediolaServer extends IPSModule
                             }
                         }
                     }
-                    if ($id != '' && isset($data['async']) && $data['async']) {
+                    if ($id != '' && !$data['wait4reply']) {
                         $new_actions = [];
                         $n_unfinished = 0;
                         foreach ($actions as $action) {
