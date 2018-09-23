@@ -73,11 +73,11 @@ class MediolaServer extends IPSModule
         $accesstoken = $this->ReadPropertyString('accesstoken');
         $password = $this->ReadPropertyString('password');
 
-		if ($hostname == '' || $port == 0 || ! ($accesstoken != '' || $password != '')) {
-			$this->SetStatus(201);
-		} else {
-			$this->SetStatus(102);
-		}
+        if ($hostname == '' || $port == 0 || !($accesstoken != '' || $password != '')) {
+            $this->SetStatus(201);
+        } else {
+            $this->SetStatus(102);
+        }
 
         // Inspired by module SymconTest/HookServe
         // Only call this in READY state. On startup the WebHook instance might not be available yet
