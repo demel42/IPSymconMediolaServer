@@ -470,7 +470,7 @@ class MediolaServer extends IPSModule
 
         $value = rawurlencode($sval);
         $r = $this->setVal($adr, 'STRING', $value);
-        $s = 'set var adr=' . $adr . ', sval=' . $sval . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
+        $s = 'set var adr=' . $adr . ', sval=\'' . $sval . '\', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
         $s = 'set var \'' . $adr . '\' to value \'' . $sval . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
@@ -538,7 +538,7 @@ class MediolaServer extends IPSModule
                     continue;
                 }
                 if ($device['adr'] == $adr && $device['type'] == $type) {
-                    $r = $device['status'];
+                    $r = $device['state'];
                     break;
                 }
             }
@@ -550,44 +550,44 @@ class MediolaServer extends IPSModule
     {
         $hostname = $this->ReadPropertyString('hostname');
 
-        $r = $this->getVal($adr, 'STRING');
-        $value = $r ? rawurldecode($r) : '';
-        $s = 'get var ' . $adr . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
+        $value = $this->getVal($adr, 'STRING');
+        $sval = $value ? rawurldecode($value) : '';
+        $s = 'get var adr=' . $adr . ', value=\'' . $value . '\', sval=\'' . $sval . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
-        return $value;
+        return $sval;
     }
 
     public function GetValueBoolean(string $adr)
     {
         $hostname = $this->ReadPropertyString('hostname');
 
-        $r = $this->getVal($adr, 'ONOFF');
-        $value = $r == 'ON' ? true : false;
-        $s = 'get var ' . $adr . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
+        $value = $this->getVal($adr, 'ONOFF');
+        $bval = $value == 'ON' ? true : false;
+        $s = 'get var adr=' . $adr . ', value=\'' . $value . '\', bval=\'' . ($bval ? 'true' : 'false') . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
-        return $value;
+        return $bval;
     }
 
     public function GetValueInteger(string $adr)
     {
         $hostname = $this->ReadPropertyString('hostname');
 
-        $r = $this->getVal($adr, 'INT');
-        $value = $r ? hexdec($r) : '';
-        $s = 'get var ' . $adr . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
+        $value = $this->getVal($adr, 'INT');
+        $ival = $value ? hexdec($value) : '';
+        $s = 'get var adr=' . $adr . ', value=\'' . $value . '\', ival=\'' . $ival . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
-        return $value;
+        return $ival;
     }
 
     public function GetValueFloat(string $adr)
     {
         $hostname = $this->ReadPropertyString('hostname');
 
-        $r = $this->getVal($adr, 'FLOAT');
-        $value = $r ? hexdec($r) / 100.0 : '';
-        $s = 'get var ' . $adr . ' from ' . $hostname . ' => ' . ($r ? $r : 'failed');
+        $value = $this->getVal($adr, 'FLOAT');
+        $fval = $value ? hexdec($value) / 100.0 : '';
+        $s = 'get var adr=' . $adr . ', value=\'' . $value . '\', fval=\'' . $fval . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
-        return $value;
+        return $fval;
     }
 
     public function RunAction(string $data)
