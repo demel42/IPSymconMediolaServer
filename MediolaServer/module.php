@@ -476,7 +476,7 @@ class MediolaServer extends IPSModule
         return $r;
     }
 
-    public function SetValueBoolean(string $adr, boolean $bval)
+    public function SetValueBoolean(string $adr, bool $bval)
     {
         $hostname = $this->ReadPropertyString('hostname');
 
