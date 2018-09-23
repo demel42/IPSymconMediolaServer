@@ -782,7 +782,7 @@ class MediolaServer extends IPSModule
         switch ($mode) {
             case 'query':
                 $data = '';
-				$ret = '';
+                $ret = '';
                 if (IPS_SemaphoreEnter($this->semaphoreID, $this->semaphoreTM)) {
                     $ac = '';
                     $id = '';
@@ -826,9 +826,9 @@ class MediolaServer extends IPSModule
                         $this->SetValue('UnfinishedActions', $n_unfinished);
                     }
                     IPS_SemaphoreLeave($this->semaphoreID);
-					$ret = $data != '' ? json_encode($data) : ''; 
+                    $ret = $data != '' ? json_encode($data) : '';
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', action=' . print_r($ac, true), 0);
-					IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', data=' . $ret);
+                    IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', data=' . $ret);
                 } else {
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ': sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 }
@@ -872,7 +872,7 @@ class MediolaServer extends IPSModule
                     if ($err != '') {
                         $this->LogMessage('task failed: err=' . $ac['err'] . ', action=' . print_r($ac, true), KL_WARNING);
                     }
-					IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', status=' . $status . ($err != '' ? ', err=' . $err : ''));
+                    IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', status=' . $status . ($err != '' ? ', err=' . $err : ''));
                 } else {
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 }
@@ -910,7 +910,7 @@ class MediolaServer extends IPSModule
                     $this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', value=' . $value . ', action=' . print_r($ac, true), 0);
-					IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', status=' . $status . ', value=' . $value);
+                    IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', status=' . $status . ', value=' . $value);
 
                     if (isset($ac['data']['objID'])) {
                         $objID = $ac['data']['objID'];
