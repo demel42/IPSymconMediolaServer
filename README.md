@@ -30,8 +30,8 @@ Aufruf von beliebigen Tasks auf dem _MediolaServer_.
 
 Hiermit können alle Geräteaktionen, die auf den _MediolaServer_ verfügbar sind, aufgerufen werden, ebenso die definierten Makros sowie jeder verfügbare Gerätstatus angerufen werden.
 
-Wichtig: das macht überhaupt keinen Sinn für Geräte, die nativ im IPS eingebunden werden können (wie z.B. HomeMatic), für viele Geräte, die am Gateway angelernt sind, gibt es direkte Aufrufe, die in dem Modul [Wolbolar/IPSymconAIOGateway](https://github.com/Wolbolar/IPSymconAIOGateway) angedeckt sind. Es gibt aber Geräte, die werde so noch so zu erreichen sind, aber von Mediola angebunden wurden. z.B. der Warema-Gateway (bei mir mit einer Markiese) ist in Mediola angebunden, die API ist nicht öffentlich und zudem verschlüsselt.
-Man könnte natürlich für jede Funktion ein eigenen Task machen, aber das ist nicht wirklich umsetzbar bei Aufrufen mit variablem Anteil (Markiese auf Postion 50% fahren).
+Wichtig: das macht überhaupt keinen Sinn für Geräte, die nativ im IPS eingebunden werden können (wie z.B. HomeMatic), für viele Geräte, die am Gateway angelernt sind, gibt es direkte Aufrufe, die in dem Modul [Wolbolar/IPSymconAIOGateway](https://github.com/Wolbolar/IPSymconAIOGateway) angedeckt sind. Es gibt aber Geräte, die werde so noch so zu erreichen sind, aber von Mediola angebunden wurden. z.B. der Warema-Gateway (bei mir mit einer Markise) ist in Mediola angebunden, die API ist nicht öffentlich und zudem verschlüsselt.
+Man könnte natürlich für jede Funktion ein eigenen Task machen, aber das ist nicht wirklich umsetzbar bei Aufrufen mit variablem Anteil (Markise auf Postion 50% fahren).
 
 Daher habe ich ein Interface geschaffen, das über einen generellen Task auf dem _MediolaServer_ jede dort verfügbaren Geräte-Aktion aufrufen, jeden Gerätes-Status abrufen und auch jedes Makro auslösen kann.
 
@@ -47,7 +47,7 @@ Bei der Abfrage eines Gerätestatus wird bei Eingang der Antwort vom _MediolaSer
 
 In einer Varianle _Queue_ werden die anstehenden bzw. abgelaufenen Aktionen für eine gewisse Zeit aufbewahrt (_max. Alter der Queue_) und dann gelöscht.
 
-Bei den Funktionen gibt es den Parameter _async_, ist er _false_, wird die nächste AKtion in der Queue erst aufgerufen, wenn es eine Rückmeldung des Status (_status_) oder Wertes (_value_) vom _MediolaServer_ gegeben hat. Meiner Beobachtung nach kann man aber im Regelfall _async_ = _true_ verwenden.
+Bei den Funktionen gibt es den Parameter _wait4reply_, ist er _false_, wird die nächste Aktion in der Queue erst aufgerufen, wenn es eine Rückmeldung des Status (_status_) oder Wertes (_value_) vom _MediolaServer_ gegeben hat. Meiner Beobachtung nach kann man aber im Regelfall _wait4reply_ = _true_ verwenden.
 
 Ein Aufruf eines Tasts, der nicht innerhalb einer bsetimmten Zeit (_max. Wartezeit_) abgesickelt ist, wird aus _überfällig_ markiert und nicht mehr behandelt.
 
@@ -97,15 +97,15 @@ $args = ['test' => '1'];
 ```
 Rückgabewert ist _false_, wenn dieser Task nicht existiert bzw. nicht aufgerufen werden konnte.
 
-`int ExecuteCommand(int $InstanzID, string $room, string $device, string $action, string $value, bool $async)`<br>
+`int ExecuteCommand(int $InstanzID, string $room, string $device, string $action, string $value, bool $wait4reply)`<br>
 Aufrufe einer beliebigen Geräteaktion über den o.g. Task.
 Rückgabewert ist die ID der Aktion.
 
-`int ExecuteMakro(int $InstanzID, string $group, string $macro, bool $async)`<br>
+`int ExecuteMakro(int $InstanzID, string $group, string $macro, bool $wait4reply)`<br>
 Aufrufe eines Makros über den o.g. Task.
 Rückgabewert ist die ID der Aktion.
 
-`int GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $async)`<br>
+`int GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $wait4reply)`<br>
 Abfrage eines Gerätestats über den o.g. Task. _objID_ ist entweder die ID einer Variablen (mit zum Mediola-Gerätestatus passenden Typ) oder ein Script, dem das Ergebnis übergeben wird.
 
 ```
@@ -162,6 +162,24 @@ Abfrage von Variablenwerten des _MediolaServer_s, die _adr_ ist die im Gerätema
 - Modul: `{C0BD3A9B-D600-4B78-B9CC-173AC2819CE5}`
 - Instanzen:
   - MediolaServer: `{3525077B-2902-459F-BFA9-E9F4F18B4C0B}`
+
+### Beispiele
+
+![Mediola-Task](docs/Geraeteaktion_1a.png?raw=true "Geräteaktion 1a") ![Mediola-Task](docs/Geraeteaktion_1b.png?raw=true "Geräteaktion 1b")
+
+`ExecuteCommand(4711, 'Gerät', 'Terrasse', 'up', '', true);`
+
+![Mediola-Task](docs/Geraeteaktion_2a.png?raw=true "Geräteaktion 2a") ![Mediola-Task](docs/Geraeteaktion_2b.png?raw=true "Geräteaktion 2b")
+
+`ExecuteCommand(4711, 'Gerät', 'Terrasse', 'moveTo', '50', true);`
+
+![Mediola-Task](docs/Geraetestatus_1a.png?raw=true "Gerätestatus 1a") ![Mediola-Task](docs/Geraetestatus_1b.png?raw=true "Gerätestatus 1b")
+
+`GetStatus(4711, 'Gerät', 'Terrasse', 'position', true);`
+
+![Mediola-Task](docs/Makro_1a.png?raw=true "Makro 1a") ![Mediola-Task](docs/Makro_1b.png?raw=true "Makro 1b")
+
+`ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', true);`
 
 ## 7. Versions-Historie
 
