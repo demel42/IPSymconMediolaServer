@@ -386,7 +386,7 @@ class MediolaServer extends IPSModule
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        $duration = floor((microtime(true) - $time_start) * 100) / 100;
+        $duration = round(microtime(true) - $time_start, 2);
         $this->SendDebug(__FUNCTION__, ' => httpcode=' . $httpcode . ', duration=' . $duration . 's', 0);
 
         $statuscode = 0;
@@ -636,7 +636,7 @@ class MediolaServer extends IPSModule
         } else {
             $this->SendDebug(__FUNCTION__, 'sempahore ' . $this->semaphoreID . ' is not accessable', 0);
         }
-        $duration = floor((microtime(true) - $time_start) * 100) / 100;
+        $duration = round(microtime(true) - $time_start, 2);
         $this->SendDebug(__FUNCTION__, 'duration=' . $duration . 's' . ($new_id != -1 ? ' => id=' . $new_id : ' => failed'), 0);
         if ($new_id != -1) {
             $this->Cycle();
@@ -747,7 +747,7 @@ class MediolaServer extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 $ok = false;
             }
-            $total_duration += floor((microtime(true) - $time_start) * 100) / 100;
+            $total_duration += round(microtime(true) - $time_start, 2);
             if ($total_duration > 10 && $waiting) {
                 $this->SendDebug(__FUNCTION__, 'total_duration=' . $total_duration . ' => abort', 0);
                 $ok = false;
@@ -815,7 +815,7 @@ class MediolaServer extends IPSModule
                             if ($action['id'] == $id) {
                                 $action['status'] = 'done';
                                 if (isset($action['microtime'])) {
-                                    $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
+                                    $action['duration'] = round(microtime(true) - $action['microtime'], 2);
                                     unset($action['microtime']);
                                 }
                                 $ac = $action;
@@ -858,7 +858,7 @@ class MediolaServer extends IPSModule
                                 $action['error'] = $err;
                             }
                             if (isset($action['microtime'])) {
-                                $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
+                                $action['duration'] = round(microtime(true) - $action['microtime'], 2);
                                 unset($action['microtime']);
                             }
                             $ac = $action;
@@ -899,7 +899,7 @@ class MediolaServer extends IPSModule
                             $action['status'] = $status;
                             $action['value'] = $value;
                             if (isset($action['microtime'])) {
-                                $action['duration'] = floor((microtime(true) - $action['microtime']) * 100) / 100;
+                                $action['duration'] = round(microtime(true) - $action['microtime'], 2);
                                 unset($action['microtime']);
                             }
                             $ac = $action;
@@ -1014,7 +1014,7 @@ class MediolaServer extends IPSModule
             IPS_Sleep(250);
         }
 
-        $duration = floor((microtime(true) - $time_start) * 100) / 100;
+        $duration = round(microtime(true) - $time_start, 2);
         $this->SendDebug(__FUNCTION__, 'id=' . $id . ', status=' . $ret . ', duration=' . $duration, 0);
         return $ret;
     }
