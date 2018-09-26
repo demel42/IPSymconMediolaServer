@@ -152,7 +152,7 @@ class MediolaServer extends IPSModule
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
         $formStatus[] = ['code' => '102', 'icon' => 'active', 'caption' => 'Instance is active'];
         $formStatus[] = ['code' => '104', 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
-        $formStatus[] = ['code' => '201', 'icon' => 'inactive (invalid configuration)', 'caption' => 'Instance is inactive (invalid configuration)'];
+        $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (invalid configuration)'];
 
         return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
     }
