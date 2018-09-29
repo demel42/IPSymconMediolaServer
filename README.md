@@ -78,7 +78,9 @@ Anschließend erscheint ein Eintrag für das Modul in der Liste der Instanz _Mod
 
 In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie, unter der man die Instanz hinzufügen will, und Hersteller _Mediola_ und als Gerät _Gateway V5/V5+/NEO Server_ auswählen.
 
-Nun die Zugangsdaten ausfüllen, dabei muss entweder der Accesstoken oder das Passwort angegeben werden. Der Accesstoken ist der Parameter, der z.B. im Blockeditor bei _at=_ angezeigt wird (siehe Snap).
+Nun die Zugangsdaten ausfüllen, wenn der _MediolaServer_ mit einem Passwort geschützt ist entweder der Accesstoken oder das Passwort angegeben werden. Der Accesstoken ist der Parameter, der z.B. im Blockeditor bei _at=_ angezeigt wird (siehe Snap).
+
+Die Portnummer ist _80_ für die Gateways und typischerweise _8088_ für den NEO Server.
 
 Im Mediola Gateway bzw. dem NEO-Server muss ein Script angelegt werden; siehe [docs/ips-callback.js](https://github.com/demel42/IPSymconMediolaServer/blob/master/docs/ips-callback.js), hier nur bitte die Zugangsdaten des IPS-Systems anpassen.
 

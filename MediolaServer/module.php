@@ -73,7 +73,7 @@ class MediolaServer extends IPSModule
         $accesstoken = $this->ReadPropertyString('accesstoken');
         $password = $this->ReadPropertyString('password');
 
-        if ($hostname == '' || $port == 0 || !($accesstoken != '' || $password != '')) {
+        if ($hostname == '' || $port == 0) {
             $this->SetStatus(201);
         } else {
             $this->SetStatus(102);
@@ -392,6 +392,7 @@ class MediolaServer extends IPSModule
         $statuscode = 0;
         $err = '';
         $jdata = '';
+		$ret = false;
         if ($httpcode != 200) {
             $err = "got http-code $httpcode";
         } else {
