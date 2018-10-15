@@ -1,7 +1,7 @@
 # IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.0-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.1-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/126683101/shield?branch=master)](https://github.styleci.io/repos/149141172)
@@ -88,7 +88,7 @@ Weiterhin muss ein Task angelegt werden, das als Auslöser _HTTP_ vorsieht und d
 
 ## 4. Funktionsreferenz
 
-`bool function CallTask(int $InstanzID, string $args)`<br>
+`bool function MediolaServer_CallTask(int $InstanzID, string $args)`<br>
 Aufruf eine Tasks auf dem _MediolaServer_. _args_ ist die json-kodierte Liste des (bzw. der) Schlüssel mit dem Wert aus dem Blockeditor - Format so:
 ```
 $args = ['test' => '1'];
@@ -96,15 +96,15 @@ $args = ['test' => '1'];
 ```
 Rückgabewert ist _false_, wenn dieser Task nicht existiert bzw. nicht aufgerufen werden konnte.
 
-`int ExecuteCommand(int $InstanzID, string $room, string $device, string $action, string $value, bool $wait4reply)`<br>
+`int MediolaServer_ExecuteCommand(int $InstanzID, string $room, string $device, string $action, string $value, bool $wait4reply)`<br>
 Aufrufe einer beliebigen Geräteaktion über den o.g. Task.
 Rückgabewert ist die ID der Aktion.
 
-`int ExecuteMakro(int $InstanzID, string $group, string $macro, bool $wait4reply)`<br>
+`int MediolaServer_ExecuteMakro(int $InstanzID, string $group, string $macro, bool $wait4reply)`<br>
 Aufrufe eines Makros über den o.g. Task.
 Rückgabewert ist die ID der Aktion.
 
-`int GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $wait4reply)`<br>
+`int MediolaServer_GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $wait4reply)`<br>
 Abfrage eines Gerätestats über den o.g. Task. _objID_ ist entweder die ID einer Variablen (mit zum Mediola-Gerätestatus passenden Typ) oder ein Script, dem das Ergebnis übergeben wird.
 
 ```
@@ -117,20 +117,20 @@ IPS_LogMessage(IPS_GetName($_IPS['SELF']) . '(' . $_IPS['SELF'] . ')', '_IPS=' .
 ```
 Rückgabewert ist die ID der Aktion.
 
-`string GetActionStatus(int $id, int $max_wait)`<br>
+`string MediolaServer_GetActionStatus(int $id, int $max_wait)`<br>
 Ergebnis eines vorherigen Task-Aufrufs. Die Funktion wartet maximal bis _max_wait_ Sekunden; ist das Ergebnis ein leerer String, ist die Funktion noch nicht abgewickelt.
 
-`bool SetValueString(int $InstanzID, string $adr, string $sval)`<br>
-`bool SetValueBoolean(int $InstanzID, string $adr, boolean $bval)`<br>
-`bool SetValueInteger(int $InstanzID, string $adr, int $ival)`<br>
-`bool SetValueFloat(int $InstanzID, string $adr, float $fval)`<br>
+`bool MediolaServer_SetValueString(int $InstanzID, string $adr, string $sval)`<br>
+`bool MediolaServer_SetValueBoolean(int $InstanzID, string $adr, boolean $bval)`<br>
+`bool MediolaServer_SetValueInteger(int $InstanzID, string $adr, int $ival)`<br>
+`bool MediolaServer_SetValueFloat(int $InstanzID, string $adr, float $fval)`<br>
 Setzen von Variablenwerten auf dem _MediolaServer_, die _adr_ ist die im Gerätemanager angegebene Adresse der Variablen.
 
-`string GetValueString(int $InstanzID, string $adr)`<br>
-`bool GetValueBoolean(int $InstanzID, string $adr)`<br>
-`int GetValueInteger(int $InstanzID, string $adr)`<br>
-`float GetValueFloat(int $InstanzID, string $adr)`<br>
-Abfrage von Variablenwerten des _MediolaServer_s, die _adr_ ist die im Gerätemanager angegebene Adresse der Variablen.
+`string MediolaServer_GetValueString(int $InstanzID, string $adr)`<br>
+`bool MediolaServer_GetValueBoolean(int $InstanzID, string $adr)`<br>
+`int MediolaServer_GetValueInteger(int $InstanzID, string $adr)`<br>
+`float MediolaServer_GetValueFloat(int $InstanzID, string $adr)`<br>
+Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Gerätemanager angegebene Adresse der Variablen.
 
 ## 5. Konfiguration:
 
@@ -146,6 +146,8 @@ Abfrage von Variablenwerten des _MediolaServer_s, die _adr_ ist die im Gerätema
 | Schlüssel des Mediola-Tasks          | string   | ips-callback=1  | Schlüssel der HTTP-Aufrufs des Tasks im Blockeditor |
 | max. Alter der Queue                 | integer  | 3600            | maximales Alter eines Queue-Eintrags (in Sekunden) |
 | max. Wartezeit                       | integer  | 10              | maximal Wartezeit nach Aufruf des Tasks vom IPS bis zur Antwort vom Mediola-Server (in Sekunden) |
+|                                      |          |                 | |
+| Update-Intervall                     | integer  | 5              | Abfrage des Status alle X Minuten |
 
 #### Schaltflächen
 
@@ -172,27 +174,31 @@ Abfrage von Variablenwerten des _MediolaServer_s, die _adr_ ist die im Gerätema
 
 ![Mediola-Task](docs/Geraeteaktion_1a.png?raw=true "Geräteaktion 1a") ![Mediola-Task](docs/Geraeteaktion_1b.png?raw=true "Geräteaktion 1b")
 
-`ExecuteCommand(4711, 'Gerät', 'Terrasse', 'up', '', false);`
+`MediolaServer_ExecuteCommand(4711, 'Gerät', 'Terrasse', 'up', '', false);`
 
 #### Geräteaktion mit variablem Parameter
 
 ![Mediola-Task](docs/Geraeteaktion_2a.png?raw=true "Geräteaktion 2a") ![Mediola-Task](docs/Geraeteaktion_2b.png?raw=true "Geräteaktion 2b")
 
-`ExecuteCommand(4711, 'Gerät', 'Terrasse', 'moveTo', '50', false);`
+`MediolaServer_ExecuteCommand(4711, 'Gerät', 'Terrasse', 'moveTo', '50', false);`
 
 #### Gerätestatus
 
 ![Mediola-Task](docs/Geraetestatus_1a.png?raw=true "Gerätestatus 1a") ![Mediola-Task](docs/Geraetestatus_1b.png?raw=true "Gerätestatus 1b")
 
-`GetStatus(4711, 'Gerät', 'Terrasse', 'position', false);`
+`MediolaServer_GetStatus(4711, 'Gerät', 'Terrasse', 'position', false);`
 
 ##### Makro
 
 ![Mediola-Task](docs/Makro_1a.png?raw=true "Makro 1a") ![Mediola-Task](docs/Makro_1b.png?raw=true "Makro 1b")
 
-`ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
+`MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.1 @ 15.10.2018 12:08<br>
+  - Schreibfehler korrigiert
+  - zyklische Status-Abfrage
 
 - 1.0 @ 17.09.2018 16:58<br>
   Initiale Version

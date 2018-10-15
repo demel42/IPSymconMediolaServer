@@ -47,6 +47,10 @@ class MediolaServer extends IPSModule
 
         $this->RegisterTimer('Cycle', 0, 'MediolaServer_Cycle(' . $this->InstanceID . ');');
 
+		$this->RegisterPropertyInteger('update_interval', '5');
+
+		$this->RegisterTimer('UpdateStatus', 0, 'MediolaServer_UpdateStatus(' . $this->InstanceID . ');');
+
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
@@ -67,6 +71,10 @@ class MediolaServer extends IPSModule
         $vpos = 0;
         $this->MaintainVariable('Queue', $this->Translate('CallBack-Queue'), vtString, '', $vpos++, true);
         $this->MaintainVariable('UnfinishedActions', $this->Translate('Count of unfinished actions'), vtInteger, '', $vpos++, true);
+		$this->MaintainVariable('Hardware', $this->Translate('Hardware'), vtString, '', $vpos++, true);
+		$this->MaintainVariable('Firmware', $this->Translate('Firmware version'), vtString, '', $vpos++, true);
+		$this->MaintainVariable('BootTime', $this->Translate('Boot time'), vtInteger, '~UnixTimestamp', $vpos++, true);
+		$this->MaintainVariable('Status', $this->Translate('State'), vtBoolean, '~Alert.Reversed', $vpos++, true);
 
         $hostname = $this->ReadPropertyString('hostname');
         $port = $this->ReadPropertyInteger('port');
@@ -83,10 +91,19 @@ class MediolaServer extends IPSModule
         // Only call this in READY state. On startup the WebHook instance might not be available yet
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->RegisterHook('/hook/MediolaServer');
+			$this->UpdateStatus();
         }
 
+		$this->SetUpdateInterval();
         $this->SetTimer();
     }
+
+	protected function SetUpdateInterval()
+	{
+		$min = $this->ReadPropertyInteger('update_interval');
+		$msec = $min > 0 ? $min * 1000 * 60 : 0;
+		$this->SetTimerInterval('UpdateStatus', $msec);
+	}
 
     public function Cycle()
     {
@@ -138,8 +155,13 @@ class MediolaServer extends IPSModule
         $formElements[] = ['type' => 'NumberSpinner', 'name' => 'max_age', 'caption' => 'Max. age of queue'];
         $formElements[] = ['type' => 'NumberSpinner', 'name' => 'max_wait', 'caption' => 'Max. wait for reply'];
 
+        $formElements[] = ['type' => 'Label', 'label' => ''];
+        $formElements[] = ['type' => 'Label', 'label' => 'Update status every X minutes'];
+        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'update_interval', 'caption' => 'Minutes'];
+
         $formActions = [];
         $formActions[] = ['type' => 'Button', 'label' => 'Verify Configuration', 'onClick' => 'MediolaServer_VerifyConfiguration($id);'];
+        $formActions[] = ['type' => 'Button', 'label' => 'Update status', 'onClick' => 'MediolaServer_UpdateStatus($id);'];
         $formActions[] = ['type' => 'Button', 'label' => 'Show Queue', 'onClick' => 'MediolaServer_ShowQueue($id);'];
         $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
         $formActions[] = [
@@ -153,9 +175,47 @@ class MediolaServer extends IPSModule
         $formStatus[] = ['code' => '102', 'icon' => 'active', 'caption' => 'Instance is active'];
         $formStatus[] = ['code' => '104', 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
         $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (invalid configuration)'];
+        $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (error)'];
 
         return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
     }
+
+    public function UpdateStatus()
+	{
+		$status = false;
+        $ret = $this->do_HttpRequest('/info', []);
+        if ($ret != '' && isset($ret['XC_SUC'])) {
+			$data = $ret['XC_SUC'];
+
+			$hwv = $data['hwv']; // Hardware-Version
+			$mhv = $data['mhv']; // Hardware-Version
+			$hw = $hwv . ' - ' . $mhv;
+			switch ($hwv) {
+				case 'A1':
+					$hw .= ' (NEO Server)';
+					break;
+				case 'E1':
+					$hw .= ' (Gateway V5)';
+					break;
+				case 'EA':
+					$hw .= ' (Gateway V5+)';
+					break;
+				default:
+					break;
+			}
+			$this->SetValue('Hardware', $hw);
+
+			$msv = $data['msv']; // Firmware
+			$this->SetValue('Firmware', $msv);
+
+			$start = $data['start']; // Startzeitpunkt
+			$this->SetValue('BootTime', $start);
+
+			$status = true;
+		}
+
+		$this->SetValue('Status', $status);
+	}
 
     public function VerifyConfiguration()
     {
@@ -417,9 +477,12 @@ class MediolaServer extends IPSModule
         }
 
         if ($err != '') {
-            echo 'url=' . $url . ' => err=' . $err . PHP_EOL;
+			$this->SetStatus(202);
+			$this->LogMessage('url=' . $url . ' => err=' . $err, KL_WARNING);
             $this->SendDebug(__FUNCTION__, ' => err=' . $err, 0);
-        }
+        } else {
+			$this->SetStatus(102);
+		}
 
         return $ret;
     }

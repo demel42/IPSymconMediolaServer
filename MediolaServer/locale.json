@@ -9,16 +9,22 @@
 			"Ident of mediola-task": "Schlüssel des Mediola-Tasks",
 			"Max. age of queue": "max. Alter der Queue",
 			"Max. wait for reply": "max. Wartezeit",
+			"Update status every X minutes": "Status alle X Minuten aktualisieren",
+			"Minutes": "Minuten",
 
 			"Verify Configuration": "Konfigururation prüfen",
+			"Update status": "Status aktualisieren",
 			"Show Queue": "Queue anzeigen",
 			"Module description": "Modulbeschreibung",
 
 			"CallBack-Queue": "Callback-Queue",
 			"Count of unfinished actions": "Anzahl der offenen Aktionen",
+			"Hardware": "Hardware",
+			"Firmware version": "Firmware-Version",
+			"Boot time": "Startzeit",
+			"State": "Status",
 
 			"action": "Aktion",
-			"Boot time": "Statrzetit",
 			"check failed": "Prüfung fehlgeschlagen",
 			"check succeeded": "Prüfung bestanden",
 			"Count of actions": "Anzahl der Aktionen",
@@ -54,7 +60,9 @@
 			"Instance is active": "Instanz ist aktiv",
 			"Instance is inactive": "Instanz ist inaktiv",
 
-			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)"
+			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
+			"Instance is inactive (no communication)": "Instanz ist inaktiv (keine Kommunikation)",
+			"Instance is inactive (got error)": "Instanz ist inaktiv (Fehler empfangen)"
 		}
 	}
 }
