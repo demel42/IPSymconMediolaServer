@@ -528,6 +528,36 @@ class MediolaServer extends IPSModule
         return $r;
     }
 
+    private function encode_num(int $val)
+	{
+		if ($val < 0) {
+			if ($val < -2147483648) {
+				return false;
+			}
+			$val = 4294967296 - ($val * -1);
+		} else {
+			if ($val > 2147483647) {
+				return false;
+			}
+		}
+		$str = strtoupper(dechex($val));
+        while (strlen($str) < 4) {
+            $str = '0' . $str;
+		}
+		return $str;
+	}
+
+    private function decode_num(string $str)
+	{
+		if ($str == '')
+			return false;
+		$val = hexdec($str);
+		if ($val > 214748367) {
+			$val = (4294967296 - $val) * -1;
+		}
+		return $val;
+	}
+
     public function SetValueString(string $adr, string $sval)
     {
         $hostname = $this->ReadPropertyString('hostname');
@@ -558,10 +588,12 @@ class MediolaServer extends IPSModule
     {
         $hostname = $this->ReadPropertyString('hostname');
 
-        $value = strtoupper(dechex($ival));
-        while (strlen($value) < 4) {
-            $value = '0' . $value;
-        }
+		$value = $this->encode_num($ival);
+		if ($value == false) {
+			$s = 'unable to set var \'' . $adr . '\' to value \'' . $ival . '\' on ' . $hostname . ' => invalid number or outside of range';
+			IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+			return false;
+		}
         $r = $this->setVal($adr, 'INT', $value);
         $s = 'set var adr=' . $adr . ', ival=' . $ival . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
@@ -574,10 +606,13 @@ class MediolaServer extends IPSModule
     {
         $hostname = $this->ReadPropertyString('hostname');
 
-        $value = strtoupper(dechex(floor($fval * 100)));
-        while (strlen($value) < 4) {
-            $value = '0' . $value;
-        }
+		$ival = $fval * 100;
+		$value = $this->encode_num($ival);
+		if ($value == false) {
+			$s = 'unable to set var \'' . $adr . '\' to value \'' . $ival . '\' on ' . $hostname . ' => invalid number or outside of range';
+			IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+			return false;
+		}
         $r = $this->setVal($adr, 'FLOAT', $value);
         $s = 'set var adr=' . $adr . ', fval=' . $fval . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
@@ -615,8 +650,14 @@ class MediolaServer extends IPSModule
         $hostname = $this->ReadPropertyString('hostname');
 
         $value = $this->getVal($adr, 'STRING');
-        $sval = $value ? rawurldecode($value) : '';
-        $s = 'get var adr=' . $adr . ', value=\'' . $value . '\', sval=\'' . $sval . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
+		if ($value == false) {
+			$sval = false;
+			$e = 'error';
+		} else {
+			$sval = rawurldecode($value);
+			$e = 'ok';
+		}
+		$s = 'get var adr=' . $adr . ', value=\'' . $value . '\', sval=\'' . $sval . '\', host=' . $hostname . ' => ' . $e;
         $this->SendDebug(__FUNCTION__, $s, 0);
         return $sval;
     }
@@ -626,8 +667,20 @@ class MediolaServer extends IPSModule
         $hostname = $this->ReadPropertyString('hostname');
 
         $value = $this->getVal($adr, 'ONOFF');
-        $bval = $value == 'ON' ? true : false;
-        $s = 'get var adr=' . $adr . ', value=\'' . $value . '\', bval=\'' . ($bval ? 'true' : 'false') . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
+		if ($value == false) {
+			$bval = false;
+			$e = 'error';
+		} else {
+			if ($value != 'ON' && $value != 'OFF') {
+				$bval = false;
+				$e = 'invalid';
+			} else {
+				$bval = $value == 'ON' ? true : false;
+				$e = 'ok';
+			}
+			$e = 'ok';
+		}
+		$s = 'get var adr=' . $adr . ', value=\'' . $value . '\', bval=\'' . ($bval ? 'true' : 'false') . '\', host=' . $hostname . ' => ' . $e;
         $this->SendDebug(__FUNCTION__, $s, 0);
         return $bval;
     }
@@ -637,8 +690,18 @@ class MediolaServer extends IPSModule
         $hostname = $this->ReadPropertyString('hostname');
 
         $value = $this->getVal($adr, 'INT');
-        $ival = $value ? hexdec($value) : '';
-        $s = 'get var adr=' . $adr . ', value=\'' . $value . '\', ival=\'' . $ival . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
+		if ($value == false) {
+			$ival = false;
+			$e = 'error';
+		} else {
+			$ival = $this->decode_num($value);
+			if ($ival == false) {
+				$e = 'invalid';
+			} else {
+				$e = 'ok';
+			}
+		}
+		$s = 'get var adr=' . $adr . ', value=\'' . $value . '\', ival=\'' . $ival . '\', host=' . $hostname . ' => ' . $e;
         $this->SendDebug(__FUNCTION__, $s, 0);
         return $ival;
     }
@@ -648,9 +711,20 @@ class MediolaServer extends IPSModule
         $hostname = $this->ReadPropertyString('hostname');
 
         $value = $this->getVal($adr, 'FLOAT');
-        $fval = $value ? hexdec($value) / 100.0 : '';
-        $s = 'get var adr=' . $adr . ', value=\'' . $value . '\', fval=\'' . $fval . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
-        $this->SendDebug(__FUNCTION__, $s, 0);
+		if ($value == false) {
+			$fval = false;
+			$e = 'error';
+		} else {
+			$fval = $this->decode_num($value);
+			if ($fval == false) {
+				$e = 'invalid';
+			} else {
+				$fval /= 100;
+				$e = 'ok';
+			}
+		}
+		$s = 'get var adr=' . $adr . ', value=\'' . $value . '\', fval=\'' . $fval . '\', host=' . $hostname . ' => ' . ($value ? 'ok' : 'failed');
+		$this->SendDebug(__FUNCTION__, $s, 0);
         return $fval;
     }
 
