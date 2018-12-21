@@ -2,23 +2,21 @@
 
 require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
 
-if (!defined('vtBoolean')) {
-    define('vtBoolean', 0);
-    define('vtInteger', 1);
-    define('vtFloat', 2);
-    define('vtString', 3);
-    define('vtArray', 8);
-    define('vtObject', 9);
+if (!defined('VARIABLETYPE_BOOLEAN')) {
+    define('VARIABLETYPE_BOOLEAN', 0);
+    define('VARIABLETYPE_INTEGER', 1);
+    define('VARIABLETYPE_FLOAT', 2);
+    define('VARIABLETYPE_STRING', 3);
 }
 
-if (!defined('otCategory')) {
-    define('otCategory', 0);
-    define('otInstance', 1);
-    define('otVariable', 2);
-    define('otScript', 3);
-    define('otEvent', 4);
-    define('otMedia', 5);
-    define('otLink', 6);
+if (!defined('OBJECTTYPE_CATEGORY')) {
+    define('OBJECTTYPE_CATEGORY', 0);
+    define('OBJECTTYPE_INSTANCE', 1);
+    define('OBJECTTYPE_VARIABLE', 2);
+    define('OBJECTTYPE_SCRIPT', 3);
+    define('OBJECTTYPE_EVENT', 4);
+    define('OBJECTTYPE_MEDIA', 5);
+    define('OBJECTTYPE_LINK', 6);
 }
 
 class MediolaServer extends IPSModule
@@ -69,12 +67,12 @@ class MediolaServer extends IPSModule
         parent::ApplyChanges();
 
         $vpos = 0;
-        $this->MaintainVariable('Queue', $this->Translate('CallBack-Queue'), vtString, '', $vpos++, true);
-        $this->MaintainVariable('UnfinishedActions', $this->Translate('Count of unfinished actions'), vtInteger, '', $vpos++, true);
-        $this->MaintainVariable('Hardware', $this->Translate('Hardware'), vtString, '', $vpos++, true);
-        $this->MaintainVariable('Firmware', $this->Translate('Firmware version'), vtString, '', $vpos++, true);
-        $this->MaintainVariable('BootTime', $this->Translate('Boot time'), vtInteger, '~UnixTimestamp', $vpos++, true);
-        $this->MaintainVariable('Status', $this->Translate('State'), vtBoolean, '~Alert.Reversed', $vpos++, true);
+        $this->MaintainVariable('Queue', $this->Translate('CallBack-Queue'), VARIABLETYPE_STRING, '', $vpos++, true);
+        $this->MaintainVariable('UnfinishedActions', $this->Translate('Count of unfinished actions'), VARIABLETYPE_INTEGER, '', $vpos++, true);
+        $this->MaintainVariable('Hardware', $this->Translate('Hardware'), VARIABLETYPE_STRING, '', $vpos++, true);
+        $this->MaintainVariable('Firmware', $this->Translate('Firmware version'), VARIABLETYPE_STRING, '', $vpos++, true);
+        $this->MaintainVariable('BootTime', $this->Translate('Boot time'), VARIABLETYPE_INTEGER, '~UnixTimestamp', $vpos++, true);
+        $this->MaintainVariable('Status', $this->Translate('State'), VARIABLETYPE_BOOLEAN, '~Alert.Reversed', $vpos++, true);
 
         $hostname = $this->ReadPropertyString('hostname');
         $port = $this->ReadPropertyInteger('port');
@@ -1058,10 +1056,10 @@ class MediolaServer extends IPSModule
                     if (isset($ac['data']['objID'])) {
                         $objID = $ac['data']['objID'];
                         $obj = IPS_GetObject($objID);
-                        if ($obj['ObjectType'] == otVariable) {
+                        if ($obj['ObjectType'] == OBJECTTYPE_VARIABLE) {
                             $var = IPS_GetVariable($objID);
                             switch ($var['VariableType']) {
-                                case vtBoolean:
+                                case VARIABLETYPE_BOOLEAN:
                                     switch (strtolower($value)) {
                                         case 'on':
                                             $v = true;
@@ -1075,20 +1073,20 @@ class MediolaServer extends IPSModule
                                     }
                                     SetValueBoolean($objID, $v);
                                     break;
-                                case vtInteger:
+                                case VARIABLETYPE_INTEGER:
                                     SetValueInteger($objID, $value);
                                     break;
-                                case vtFloat:
+                                case VARIABLETYPE_FLOAT:
                                     SetValueFloat($objID, $value);
                                     break;
-                                case vtString:
+                                case VARIABLETYPE_STRING:
                                     SetValueString($objID, $value);
                                     break;
                                 default:
                                     $this->SendDebug(__FUNCTION__, 'unsupported type of varіable ' . print_r($var, true), 0);
                                     break;
                             }
-                        } elseif ($obj['ObjectType'] == otScript) {
+                        } elseif ($obj['ObjectType'] == OBJECTTYPE_SCRIPT) {
                             IPS_RunScriptEx($objID, ['status' => $ac['status'], 'value' => $ac['value']]);
                         } else {
                             $this->SendDebug(__FUNCTION__, 'unsupported type of object ' . print_r($obj, true), 0);
