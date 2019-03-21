@@ -13,7 +13,7 @@ class MediolaServer extends IPSModule
     {
         parent::Create();
 
-		$this->RegisterPropertyBoolean('module_disable', false);
+        $this->RegisterPropertyBoolean('module_disable', false);
 
         $this->RegisterPropertyString('hostname', '');
         $this->RegisterPropertyInteger('port', '80');
@@ -64,12 +64,12 @@ class MediolaServer extends IPSModule
         $accesstoken = $this->ReadPropertyString('accesstoken');
         $password = $this->ReadPropertyString('password');
 
-		$module_disable = $this->ReadPropertyBoolean('module_disable');
-		if ($module_disable) {
-			$this->SetTimerInterval('UpdateStatus', 0);
-			$this->SetStatus(IS_INACTIVE);
-			return;
-		}
+        $module_disable = $this->ReadPropertyBoolean('module_disable');
+        if ($module_disable) {
+            $this->SetTimerInterval('UpdateStatus', 0);
+            $this->SetStatus(IS_INACTIVE);
+            return;
+        }
 
         if ($hostname == '' || $port == 0) {
             $this->SetStatus(IS_INVALIDCONFIG);
@@ -134,7 +134,7 @@ class MediolaServer extends IPSModule
     public function GetConfigurationForm()
     {
         $formElements = [];
-		$formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'hostname', 'caption' => 'Hostname'];
         $formElements[] = ['type' => 'Label', 'label' => 'Port is 80 for the Gateway and typically 8088 for the NEO Server'];
         $formElements[] = ['type' => 'NumberSpinner', 'name' => 'port', 'caption' => 'Port'];
@@ -162,12 +162,11 @@ class MediolaServer extends IPSModule
                         ];
 
         $formStatus = [];
-		$formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
-		$formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
-		$formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
-		$formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
-		$formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
-
+        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
+        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
+        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
+        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
+        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
 
         $formStatus[] = ['code' => IS_INVALIDCONFIG, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid configuration)'];
         $formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
@@ -177,11 +176,11 @@ class MediolaServer extends IPSModule
 
     public function UpdateStatus()
     {
-		$inst = IPS_GetInstance($this->InstanceID);
-		if ($inst['InstanceStatus'] == IS_INACTIVE) {
-			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-			return;
-		}
+        $inst = IPS_GetInstance($this->InstanceID);
+        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return;
+        }
 
         $status = false;
         $ret = $this->do_HttpRequest('/info', []);
@@ -220,12 +219,12 @@ class MediolaServer extends IPSModule
 
     public function VerifyConfiguration()
     {
-		$inst = IPS_GetInstance($this->InstanceID);
-		if ($inst['InstanceStatus'] == IS_INACTIVE) {
-			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-			echo $this->translate('Instance is inactive') . PHP_EOL;
-			return;
-		}
+        $inst = IPS_GetInstance($this->InstanceID);
+        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            echo $this->translate('Instance is inactive') . PHP_EOL;
+            return;
+        }
 
         $msg = '';
         $err = '';
@@ -278,12 +277,12 @@ class MediolaServer extends IPSModule
 
     public function ShowQueue()
     {
-		$inst = IPS_GetInstance($this->InstanceID);
-		if ($inst['InstanceStatus'] == IS_INACTIVE) {
-			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-			echo $this->translate('Instance is inactive') . PHP_EOL;
-			return;
-		}
+        $inst = IPS_GetInstance($this->InstanceID);
+        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            echo $this->translate('Instance is inactive') . PHP_EOL;
+            return;
+        }
 
         $msg = $this->Translate('Information of callback-queue') . PHP_EOL;
         $msg .= PHP_EOL;
@@ -422,11 +421,11 @@ class MediolaServer extends IPSModule
 
     private function do_HttpRequest($cmd, $args)
     {
-		$inst = IPS_GetInstance($this->InstanceID);
-		if ($inst['InstanceStatus'] == IS_INACTIVE) {
-			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-			return;
-		}
+        $inst = IPS_GetInstance($this->InstanceID);
+        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return;
+        }
 
         $hostname = $this->ReadPropertyString('hostname');
         $port = $this->ReadPropertyInteger('port');
