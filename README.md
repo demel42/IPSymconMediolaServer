@@ -200,6 +200,7 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 - 1.5 @ 21.03.2019 17:04<br>
   - Schalter, um eine Instanz (temporär) zu deaktivieren
+  - Anpassung IPS 5
 
 - 1.4 @ 23.01.2019 18:18<br>
   - curl_errno() abfragen
