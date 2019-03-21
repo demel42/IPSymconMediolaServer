@@ -1,7 +1,7 @@
 # IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.4-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.5-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/126683101/shield?branch=master)](https://github.styleci.io/repos/149141172)
@@ -138,6 +138,8 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 | Eigenschaft                          | Typ      | Standardwert    | Beschreibung |
 | :----------------------------------: | :-----:  | :-------------: | :----------------------------------------------------------------------------------------------------------: |
+| Instanz ist deaktiviert              | boolean  | false           | Instanz temporär deaktivieren |
+|                                      |          |                 | |
 | Hostname                             | string   |                 | Namen oder IP des Gateway / NEO-Server |
 | Port                                 | integer  | 80              | Http-Port, für den Gateway ist das 80, für den NEO Server typischerweise 8088 |
 | Accesstoken                          | string   |                 | Accesstoken des Gateway |
@@ -147,7 +149,7 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 | max. Alter der Queue                 | integer  | 3600            | maximales Alter eines Queue-Eintrags (in Sekunden) |
 | max. Wartezeit                       | integer  | 10              | maximal Wartezeit nach Aufruf des Tasks vom IPS bis zur Antwort vom Mediola-Server (in Sekunden) |
 |                                      |          |                 | |
-| Update-Intervall                     | integer  | 5              | Abfrage des Status alle X Minuten |
+| Update-Intervall                     | integer  | 5               | Abfrage des Status alle X Minuten |
 
 #### Schaltflächen
 
@@ -195,6 +197,9 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 `MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.5 @ 21.03.2019 17:04<br>
+  - Schalter, um eine Instanz (temporär) zu deaktivieren
 
 - 1.4 @ 23.01.2019 18:18<br>
   - curl_errno() abfragen
