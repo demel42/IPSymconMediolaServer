@@ -1,7 +1,7 @@
 # IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.5-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.6-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/126683101/shield?branch=master)](https://github.styleci.io/repos/149141172)
@@ -197,6 +197,9 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 `MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.6 @ 29.03.2019 16:19<br>
+  - SetValue() abgesichert
 
 - 1.5 @ 21.03.2019 17:04<br>
   - Schalter, um eine Instanz (temporär) zu deaktivieren
