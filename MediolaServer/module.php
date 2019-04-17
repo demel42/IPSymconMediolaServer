@@ -834,7 +834,7 @@ class MediolaServer extends IPSModule
         return $this->RunAction(json_encode($data));
     }
 
-    public function GetStatus(string $room, string $device, string $variable, int $objID, bool $wait4reply)
+    public function GetState(string $room, string $device, string $variable, int $objID, bool $wait4reply)
     {
         $data = [
                 'mode'       => 'getStatus',

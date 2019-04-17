@@ -1,7 +1,7 @@
 # IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.6-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.7-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/126683101/shield?branch=master)](https://github.styleci.io/repos/149141172)
@@ -26,7 +26,7 @@ Diese Modul stellt einige Hilfsfunktionen zum Umgang mit dem Mediola Gateway ode
 
 Aufruf von beliebigen Tasks auf dem _MediolaServer_.
 
-### ExecuteCommand / ExecuteMakro / GetStatus
+### ExecuteCommand / ExecuteMakro / GetState
 
 Hiermit können alle Geräteaktionen, die auf den _MediolaServer_ verfügbar sind, aufgerufen werden, ebenso die definierten Makros sowie jeder verfügbare Gerätstatus angerufen werden.
 
@@ -104,7 +104,7 @@ Rückgabewert ist die ID der Aktion.
 Aufrufe eines Makros über den o.g. Task.
 Rückgabewert ist die ID der Aktion.
 
-`int MediolaServer_GetStatus(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $wait4reply)`<br>
+`int MediolaServer_GetState(int $InstanzID, string $room, string $device, string $variable, int $objID, bool $wait4reply)`<br>
 Abfrage eines Gerätestats über den o.g. Task. _objID_ ist entweder die ID einer Variablen (mit zum Mediola-Gerätestatus passenden Typ) oder ein Script, dem das Ergebnis übergeben wird.
 
 ```
@@ -188,7 +188,7 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ![Mediola-Task](docs/Geraetestatus_1a.png?raw=true "Gerätestatus 1a") ![Mediola-Task](docs/Geraetestatus_1b.png?raw=true "Gerätestatus 1b")
 
-`MediolaServer_GetStatus(4711, 'Gerät', 'Terrasse', 'position', false);`
+`MediolaServer_GetState(4711, 'Gerät', 'Terrasse', 'position', false);`
 
 ##### Makro
 
@@ -197,6 +197,9 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 `MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.7 @ 17.04.2019 08:18<br>
+  - neue Standard-Funktion GetStatus(), daher lokale Funktion GetStatus() umbenannt in GetState()
 
 - 1.6 @ 29.03.2019 16:19<br>
   - SetValue() abgesichert
