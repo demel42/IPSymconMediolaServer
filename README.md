@@ -199,7 +199,7 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 ## 7. Versions-Historie
 
 - 1.7 @ 17.04.2019 08:18<br>
-  - ANpassung IPS 5.1: neue Standard-Funktion GetStatus(), daher lokale Funktion GetStatus() umbenannt in GetState()
+  - Anpassung IPS 5.1: neue Standard-Funktion GetStatus(), daher lokale Funktion GetStatus() umbenannt in GetState()
 
 - 1.6 @ 29.03.2019 16:19<br>
   - SetValue() abgesichert
