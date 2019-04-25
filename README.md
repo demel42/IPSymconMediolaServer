@@ -136,27 +136,27 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ### Variablen
 
-| Eigenschaft                          | Typ      | Standardwert    | Beschreibung |
-| :----------------------------------: | :-----:  | :-------------: | :----------------------------------------------------------------------------------------------------------: |
-| Instanz ist deaktiviert              | boolean  | false           | Instanz temporär deaktivieren |
-|                                      |          |                 | |
-| Hostname                             | string   |                 | Namen oder IP des Gateway / NEO-Server |
-| Port                                 | integer  | 80              | Http-Port, für den Gateway ist das 80, für den NEO Server typischerweise 8088 |
-| Accesstoken                          | string   |                 | Accesstoken des Gateway |
-| Passwort                             | string   |                 | alternativ zum _Accesstoken_ |
-|                                      |          |                 | |
-| Schlüssel des Mediola-Tasks          | string   | ips-callback=1  | Schlüssel der HTTP-Aufrufs des Tasks im Blockeditor |
-| max. Alter der Queue                 | integer  | 3600            | maximales Alter eines Queue-Eintrags (in Sekunden) |
-| max. Wartezeit                       | integer  | 10              | maximal Wartezeit nach Aufruf des Tasks vom IPS bis zur Antwort vom Mediola-Server (in Sekunden) |
-|                                      |          |                 | |
-| Update-Intervall                     | integer  | 5               | Abfrage des Status alle X Minuten |
+| Eigenschaft                 | Typ     | Standardwert   | Beschreibung |
+| :-------------------------- | :------ | :------------- | :----------- |
+| Instanz ist deaktiviert     | boolean | false          | Instanz temporär deaktivieren |
+|                             |         |                | |
+| Hostname                    | string  |                | Namen oder IP des Gateway / NEO-Server |
+| Port                        | integer | 80             | Http-Port, für den Gateway ist das 80, für den NEO Server typischerweise 8088 |
+| Accesstoken                 | string  |                | Accesstoken des Gateway |
+| Passwort                    | string  |                | alternativ zum _Accesstoken_ |
+|                             |         |                | |
+| Schlüssel des Mediola-Tasks | string  | ips-callback=1 | Schlüssel der HTTP-Aufrufs des Tasks im Blockeditor |
+| max. Alter der Queue        | integer | 3600           | maximales Alter eines Queue-Eintrags (in Sekunden) |
+| max. Wartezeit              | integer | 10             | maximal Wartezeit nach Aufruf des Tasks vom IPS bis zur Antwort vom Mediola-Server (in Sekunden) |
+|                             |         |                | |
+| Update-Intervall            | integer | 5              | Abfrage des Status alle X Minuten |
 
 #### Schaltflächen
 
-| Bezeichnung                  | Beschreibung |
-| :--------------------------: | :-------------------------------------------------------------: |
-| Prüfen Konfiguration         | Zugriff prüfen und Informationen vom _MediolaServer_ holen      |
-| Queue anzeigen               | Status der Queue der Aktionen anzeigen |
+| Bezeichnung          | Beschreibung |
+| :------------------- | :----------- |
+| Prüfen Konfiguration | Zugriff prüfen und Informationen vom _MediolaServer_ holen |
+| Queue anzeigen       | Status der Queue der Aktionen anzeigen |
 
 ## 6. Anhang
 
@@ -199,7 +199,7 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 ## 7. Versions-Historie
 
 - 1.7 @ 17.04.2019 08:18<br>
-  - neue Standard-Funktion GetStatus(), daher lokale Funktion GetStatus() umbenannt in GetState()
+  - ANpassung IPS 5.1: neue Standard-Funktion GetStatus(), daher lokale Funktion GetStatus() umbenannt in GetState()
 
 - 1.6 @ 29.03.2019 16:19<br>
   - SetValue() abgesichert
