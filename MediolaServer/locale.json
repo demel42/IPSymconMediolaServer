@@ -39,7 +39,6 @@
 			"fail": "fehlgeschlagen",
 			"Firmware": "Firmware",
 			"group": "Gruppe",
-			"Hardware": "Hardware",
 			"id": "id",
 			"Information of callback-queue": "Information über die Callback-Queue",
 			"List of actions": "Liste der Aktionen",
@@ -64,8 +63,7 @@
 			"Instance is inactive": "Instanz ist inaktiv",
 
 			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
-			"Instance is inactive (no communication)": "Instanz ist inaktiv (keine Kommunikation)",
-			"Instance is inactive (got error)": "Instanz ist inaktiv (Fehler empfangen)"
+			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)"
 		}
 	}
 }

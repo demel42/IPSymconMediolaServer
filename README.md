@@ -1,7 +1,7 @@
 # IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.7-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.8-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/126683101/shield?branch=master)](https://github.styleci.io/repos/149141172)
@@ -197,6 +197,10 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 `MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.8 @ 26.04.2019 16:50<br>
+  - Übersetzung ergänzt
+  - locale.json korrigiert
 
 - 1.7 @ 17.04.2019 08:18<br>
   - Anpassung IPS 5.1: neue Standard-Funktion GetStatus(), daher lokale Funktion GetStatus() umbenannt in GetState()
