@@ -36,7 +36,7 @@ const run_executeCommand = function(jdata) {
     var room = jdata.room ? jdata.room : '';
     var device = jdata.device ? jdata.device : '';
     var action = jdata.action ? jdata.action : '';
-    var value = jdata.value ? jdata.value : '';
+    var value = jdata.value !== undefined ? jdata.value : '';
     console.log("mode=" + mode + ": room=" + room + ", device=" + device + ", action=" + action + ", value=" + value);
     if (room === '' || device === '' || action === '') {
         err = "malformed request: " + "room='" + room + "', device='" + device + "', action='" + action + "'";
@@ -45,7 +45,7 @@ const run_executeCommand = function(jdata) {
     }
     
     var cmd = {"value":action};
-    if (value) {
+    if (jdata.value !== undefined) {
         cmd.ext = value;
     }
     executeDeviceCommand(
