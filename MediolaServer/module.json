@@ -9,5 +9,6 @@
 	"parentRequirements": [],
 	"childRequirements": [],
 	"implemented": [],
-	"prefix": "MediolaServer"
+	"prefix": "MediolaServer",
+	"url": "https://github.com/demel42/IPSymconMediolaGateway/blob/master/README.md"
 }

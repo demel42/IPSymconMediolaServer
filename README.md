@@ -1,7 +1,7 @@
 # IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.10-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.11-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/149141172/shield?branch=master)](https://github.styleci.io/repos/149141172)
@@ -197,6 +197,11 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 `MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.11 @ 26.09.2019 18:24<br>
+  - Anpassungen an IPS 5.2
+    - IPS_SetVariableProfileValues(), IPS_SetVariableProfileDigits() nur bei INTEGER, FLOAT
+    - Dokumentation-URL in module.json
 
 - 1.10 @ 19.08.2019 21:02<br>
   - Fehler in ips-callback.js korrgiert
