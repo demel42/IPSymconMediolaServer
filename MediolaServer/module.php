@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
 
 class MediolaServer extends IPSModule
@@ -157,10 +159,10 @@ class MediolaServer extends IPSModule
         if (IPS_GetKernelVersion() < 5.2) {
             $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
             $formActions[] = [
-                            'type'    => 'Button',
-                            'caption' => 'Module description',
-                            'onClick' => 'echo "https://github.com/demel42/IPSymconMediolaServer/blob/master/README.md";'
-                        ];
+                'type'    => 'Button',
+                'caption' => 'Module description',
+                'onClick' => 'echo "https://github.com/demel42/IPSymconMediolaServer/blob/master/README.md";'
+            ];
         }
 
         $formStatus = [];
@@ -544,11 +546,11 @@ class MediolaServer extends IPSModule
     private function setVal(string $adr, string $type, string $value)
     {
         $args = [
-                'XC_FNC' => 'setVar',
-                'id'     => $adr,
-                'type'   => $type,
-                'value'  => $value,
-            ];
+            'XC_FNC' => 'setVar',
+            'id'     => $adr,
+            'type'   => $type,
+            'value'  => $value,
+        ];
         $ret = $this->do_HttpRequest('/cmd', $args);
         $r = $ret != '' && isset($ret['XC_SUC']);
         return $r;
@@ -633,7 +635,7 @@ class MediolaServer extends IPSModule
     {
         $hostname = $this->ReadPropertyString('hostname');
 
-        $ival = $fval * 100;
+        $ival = (int) $fval * 100;
         $value = $this->encode_num($ival);
         if ($value == false) {
             $s = 'unable to set var \'' . $adr . '\' to value \'' . $ival . '\' on ' . $hostname . ' => invalid number or outside of range';
@@ -651,8 +653,8 @@ class MediolaServer extends IPSModule
     private function getVal(string $adr, string $type)
     {
         $args = [
-                'XC_FNC' => 'GetStates',
-            ];
+            'XC_FNC' => 'GetStates',
+        ];
         $ret = $this->do_HttpRequest('/cmd', $args);
         $r = false;
         if ($ret != '' && isset($ret['XC_SUC'])) {
@@ -787,11 +789,11 @@ class MediolaServer extends IPSModule
                 $s['wait4reply'] = false;
             }
             $action = [
-                    'id'       => $new_id,
-                    'creation' => time(),
-                    'data'     => $s,
-                    'status'   => 'pending',
-                ];
+                'id'       => $new_id,
+                'creation' => time(),
+                'data'     => $s,
+                'status'   => 'pending',
+            ];
             $new_actions[] = $action;
             $n_unfinished++;
             $sdata = json_encode($new_actions);
@@ -812,12 +814,12 @@ class MediolaServer extends IPSModule
     public function ExecuteCommand(string $room, string $device, string $action, string $value, bool $wait4reply)
     {
         $data = [
-                'mode'       => 'executeCommand',
-                'room'       => $room,
-                'device'     => $device,
-                'action'     => $action,
-                'wait4reply' => $wait4reply
-            ];
+            'mode'       => 'executeCommand',
+            'room'       => $room,
+            'device'     => $device,
+            'action'     => $action,
+            'wait4reply' => $wait4reply
+        ];
         if ($value != '') {
             $data['value'] = $value;
         }
@@ -828,24 +830,24 @@ class MediolaServer extends IPSModule
     public function ExecuteMakro(string $group, string $macro, bool $wait4reply)
     {
         $data = [
-                'mode'       => 'executeMacro',
-                'group'      => $group,
-                'macro'      => $macro,
-                'wait4reply' => $wait4reply
-            ];
+            'mode'       => 'executeMacro',
+            'group'      => $group,
+            'macro'      => $macro,
+            'wait4reply' => $wait4reply
+        ];
         return $this->RunAction(json_encode($data));
     }
 
     public function GetState(string $room, string $device, string $variable, int $objID, bool $wait4reply)
     {
         $data = [
-                'mode'       => 'getStatus',
-                'room'       => $room,
-                'device'     => $device,
-                'variable'   => $variable,
-                'objID'      => $objID,
-                'wait4reply' => $wait4reply
-            ];
+            'mode'       => 'getStatus',
+            'room'       => $room,
+            'device'     => $device,
+            'variable'   => $variable,
+            'objID'      => $objID,
+            'wait4reply' => $wait4reply
+        ];
         return $this->RunAction(json_encode($data));
     }
 
