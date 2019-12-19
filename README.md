@@ -1,7 +1,7 @@
 # IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.11-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.12-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
@@ -197,46 +197,50 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
-- 1.11 @ 13.10.2019 13:18<br>
+- 1.12 @ 19.12.2019 14:09
+  - Anpassungen an IPS 5.3
+    - Formular-Elemente: 'label' in 'caption' geändert
+
+- 1.11 @ 13.10.2019 13:18
   - Anpassungen an IPS 5.2
     - IPS_SetVariableProfileValues(), IPS_SetVariableProfileDigits() nur bei INTEGER, FLOAT
     - Dokumentation-URL in module.json
   - Umstellung auf strict_types=1
   - Umstellung von StyleCI auf php-cs-fixer
 
-- 1.10 @ 19.08.2019 21:02<br>
+- 1.10 @ 19.08.2019 21:02
   - Fehler in ips-callback.js korrgiert
 
-- 1.9 @ 09.08.2019 14:32<br>
+- 1.9 @ 09.08.2019 14:32
   - Schreibfehler korrigiert
 
-- 1.8 @ 26.04.2019 16:50<br>
+- 1.8 @ 26.04.2019 16:50
   - Übersetzung ergänzt
   - locale.json korrigiert
 
-- 1.7 @ 17.04.2019 08:18<br>
+- 1.7 @ 17.04.2019 08:18
   - Anpassung IPS 5.1: neue Standard-Funktion GetStatus(), daher lokale Funktion GetStatus() umbenannt in GetState()
 
-- 1.6 @ 29.03.2019 16:19<br>
+- 1.6 @ 29.03.2019 16:19
   - SetValue() abgesichert
 
-- 1.5 @ 21.03.2019 17:04<br>
+- 1.5 @ 21.03.2019 17:04
   - Schalter, um eine Instanz (temporär) zu deaktivieren
   - Anpassung IPS 5
 
-- 1.4 @ 23.01.2019 18:18<br>
+- 1.4 @ 23.01.2019 18:18
   - curl_errno() abfragen
 
-- 1.3 @ 21.12.2018 13:10<br>
+- 1.3 @ 21.12.2018 13:10
   - Standard-Konstanten verwenden
 
-- 1.2 @ 18.11.2018 11:40<br>
+- 1.2 @ 18.11.2018 11:40
   - Implementierung negativer _INT_ und _FLOAT_-Werte war fehlerhaft
   - Prüfung auf Verletzung von Wertegrenzen (INT: -2147483648..2147483647, FLOAT: -21474836.48..21474836.47)
 
-- 1.1 @ 15.10.2018 12:08<br>
+- 1.1 @ 15.10.2018 12:08
   - Schreibfehler korrigiert
   - zyklische Status-Abfrage
 
-- 1.0 @ 17.09.2018 16:58<br>
-  Initiale Version
+- 1.0 @ 17.09.2018 16:58
+  - Initiale Version

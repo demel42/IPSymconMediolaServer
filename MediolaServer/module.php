@@ -138,7 +138,7 @@ class MediolaServer extends IPSModule
         $formElements = [];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'hostname', 'caption' => 'Hostname'];
-        $formElements[] = ['type' => 'Label', 'label' => 'Port is 80 for the Gateway and typically 8088 for the NEO Server'];
+        $formElements[] = ['type' => 'Label', 'caption' => 'Port is 80 for the Gateway and typically 8088 for the NEO Server'];
         $formElements[] = ['type' => 'NumberSpinner', 'name' => 'port', 'caption' => 'Port'];
 
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'accesstoken', 'caption' => 'Accesstoken'];
@@ -148,16 +148,16 @@ class MediolaServer extends IPSModule
         $formElements[] = ['type' => 'NumberSpinner', 'name' => 'max_age', 'caption' => 'Max. age of queue'];
         $formElements[] = ['type' => 'NumberSpinner', 'name' => 'max_wait', 'caption' => 'Max. wait for reply'];
 
-        $formElements[] = ['type' => 'Label', 'label' => ''];
-        $formElements[] = ['type' => 'Label', 'label' => 'Update status every X minutes'];
+        $formElements[] = ['type' => 'Label', 'caption' => ''];
+        $formElements[] = ['type' => 'Label', 'caption' => 'Update status every X minutes'];
         $formElements[] = ['type' => 'NumberSpinner', 'name' => 'update_interval', 'caption' => 'Minutes'];
 
         $formActions = [];
-        $formActions[] = ['type' => 'Button', 'label' => 'Verify Configuration', 'onClick' => 'MediolaServer_VerifyConfiguration($id);'];
-        $formActions[] = ['type' => 'Button', 'label' => 'Update status', 'onClick' => 'MediolaServer_UpdateStatus($id);'];
-        $formActions[] = ['type' => 'Button', 'label' => 'Show Queue', 'onClick' => 'MediolaServer_ShowQueue($id);'];
+        $formActions[] = ['type' => 'Button', 'caption' => 'Verify Configuration', 'onClick' => 'MediolaServer_VerifyConfiguration($id);'];
+        $formActions[] = ['type' => 'Button', 'caption' => 'Update status', 'onClick' => 'MediolaServer_UpdateStatus($id);'];
+        $formActions[] = ['type' => 'Button', 'caption' => 'Show Queue', 'onClick' => 'MediolaServer_ShowQueue($id);'];
         if (IPS_GetKernelVersion() < 5.2) {
-            $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
+            $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
             $formActions[] = [
                 'type'    => 'Button',
                 'caption' => 'Module description',
