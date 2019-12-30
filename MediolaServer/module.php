@@ -156,14 +156,6 @@ class MediolaServer extends IPSModule
         $formActions[] = ['type' => 'Button', 'caption' => 'Verify Configuration', 'onClick' => 'MediolaServer_VerifyConfiguration($id);'];
         $formActions[] = ['type' => 'Button', 'caption' => 'Update status', 'onClick' => 'MediolaServer_UpdateStatus($id);'];
         $formActions[] = ['type' => 'Button', 'caption' => 'Show Queue', 'onClick' => 'MediolaServer_ShowQueue($id);'];
-        if (IPS_GetKernelVersion() < 5.2) {
-            $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
-            $formActions[] = [
-                'type'    => 'Button',
-                'caption' => 'Module description',
-                'onClick' => 'echo "https://github.com/demel42/IPSymconMediolaServer/blob/master/README.md";'
-            ];
-        }
 
         $formStatus = [];
         $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];

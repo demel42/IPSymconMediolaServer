@@ -61,7 +61,7 @@ trait MediolaServerCommon
         if (!IPS_VariableProfileExists($Name)) {
             IPS_CreateVariableProfile($Name, $ProfileType);
             IPS_SetVariableProfileText($Name, '', $Suffix);
-            if (IPS_GetKernelVersion() < 5.2) {
+            if (in_array($ProfileType, [VARIABLETYPE_INTEGER, VARIABLETYPE_FLOAT])) {
                 IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
                 IPS_SetVariableProfileDigits($Name, $Digits);
             }
