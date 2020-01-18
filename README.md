@@ -1,7 +1,6 @@
 # IPSymconMediolaServer
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.3+-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.12-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
@@ -107,7 +106,7 @@ Rückgabewert ist die ID der Aktion.
 Abfrage eines Gerätestats über den o.g. Task. _objID_ ist entweder die ID einer Variablen (mit zum Mediola-Gerätestatus passenden Typ) oder ein Script, dem das Ergebnis übergeben wird.
 
 ```
-<?
+<?php
 
 $status = $_IPS['status'];
 $value = $_IPS['value'];
@@ -196,6 +195,10 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 `MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.13 @ 18.01.2020 10:46
+  - Anpassungen an IPS 5.3
+    - auch in der Dokumentation das 'PHP Long Tag' verwenden
 
 - 1.12 @ 01.01.2020 18:52
   - Anpassungen an IPS 5.3
