@@ -47,11 +47,11 @@ In einer Variable _Queue_ werden die anstehenden bzw. abgelaufenen Aktionen für
 
 Bei den Funktionen gibt es den Parameter _wait4reply_, ist er _true_, wird die nächste Aktion in der Queue erst aufgerufen, wenn es eine Rückmeldung des Status (_status_) oder Wertes (_value_) vom _MediolaServer_ gegeben hat. Meiner Beobachtung nach kann man aber im Regelfall _wait4reply_ = _false_ verwenden.
 
-Ein Aufruf eines Tasts, der nicht innerhalb einer bsetimmten Zeit (_max. Wartezeit_) abgesickelt ist, wird aus _überfällig_ markiert und nicht mehr behandelt.
+Ein Aufruf eines Tasks, der nicht innerhalb einer bsetimmten Zeit (_max. Wartezeit_) abgesickelt ist, wird aus _überfällig_ markiert und nicht mehr behandelt.
 
 ### SetValue/GetValue
 
-Umgang mit Variablen auf dem Gatewやy / NEO Server
+Umgang mit Variablen auf dem Gateway / NEO Server
 
 ## 2. Voraussetzungen
 
@@ -195,6 +195,9 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 `MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.14 @ 13.07.2020 14:56
+  - LICENSE.md hinzugefügt
 
 - 1.13 @ 18.01.2020 10:46
   - Anpassungen an IPS 5.3
