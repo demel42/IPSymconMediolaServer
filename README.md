@@ -196,8 +196,11 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
-- 1.14 @ 13.07.2020 14:56
+- 1.14 @ 23.07.2020 15:21 (beta)
   - LICENSE.md hinzugefügt
+  - define's durch statische Klassen-Variablen ersetzt
+  - library.php in local.php umbenannt
+  - lokale Funktionen aus common.php in locale.php verlagert
 
 - 1.13 @ 18.01.2020 10:46
   - Anpassungen an IPS 5.3

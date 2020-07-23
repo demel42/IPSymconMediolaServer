@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
 
 class MediolaServer extends IPSModule
 {
-    use MediolaServerCommon;
+    use MediolaServerCommonLib;
+    use MediolaServerLocalLib;
 
     private $semaphoreID = __CLASS__;
     private $semaphoreTM = 250;
@@ -74,7 +76,7 @@ class MediolaServer extends IPSModule
         }
 
         if ($hostname == '' || $port == 0) {
-            $this->SetStatus(IS_INVALIDCONFIG);
+            $this->SetStatus(self::$IS_INVALIDCONFIG);
         } else {
             $this->SetStatus(IS_ACTIVE);
         }
@@ -135,39 +137,109 @@ class MediolaServer extends IPSModule
 
     public function GetConfigurationForm()
     {
+        $formElements = $this->GetFormElements();
+        $formActions = $this->GetFormActions();
+        $formStatus = $this->GetFormStatus();
+
+        $form = json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        if ($form == '') {
+            $this->SendDebug(__FUNCTION__, 'json_error=' . json_last_error_msg(), 0);
+            $this->SendDebug(__FUNCTION__, '=> formElements=' . print_r($formElements, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formActions=' . print_r($formActions, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formStatus=' . print_r($formStatus, true), 0);
+        }
+        return $form;
+    }
+
+    private function GetFormElements()
+    {
         $formElements = [];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'hostname', 'caption' => 'Hostname'];
-        $formElements[] = ['type' => 'Label', 'caption' => 'Port is 80 for the Gateway and typically 8088 for the NEO Server'];
-        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'port', 'caption' => 'Port'];
 
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'accesstoken', 'caption' => 'Accesstoken'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'password', 'caption' => 'Password'];
+        $formElements[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'module_disable',
+            'caption' => 'Instance is disabled'
+        ];
+        $formElements[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'hostname',
+            'caption' => 'Hostname'
+        ];
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Port is 80 for the Gateway and typically 8088 for the NEO Server'
+        ];
+        $formElements[] = [
+            'type'    => 'NumberSpinner',
+            'name'    => 'port',
+            'caption' => 'Port'
+        ];
 
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'task_ident', 'caption' => 'Ident of mediola-task'];
-        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'max_age', 'caption' => 'Max. age of queue'];
-        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'max_wait', 'caption' => 'Max. wait for reply'];
+        $formElements[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'accesstoken',
+            'caption' => 'Accesstoken'
+        ];
+        $formElements[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'password',
+            'caption' => 'Password'
+        ];
 
-        $formElements[] = ['type' => 'Label', 'caption' => ''];
-        $formElements[] = ['type' => 'Label', 'caption' => 'Update status every X minutes'];
-        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'update_interval', 'caption' => 'Minutes'];
+        $formElements[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'task_ident',
+            'caption' => 'Ident of mediola-task'
+        ];
+        $formElements[] = [
+            'type'    => 'NumberSpinner',
+            'name'    => 'max_age',
+            'caption' => 'Max. age of queue'
+        ];
+        $formElements[] = [
+            'type'    => 'NumberSpinner',
+            'name'    => 'max_wait',
+            'caption' => 'Max. wait for reply'
+        ];
 
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => ''
+        ];
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Update status every X minutes'
+        ];
+        $formElements[] = [
+            'type'    => 'NumberSpinner',
+            'name'    => 'update_interval',
+            'caption' => 'Minutes'
+        ];
+
+        return $formElements;
+    }
+
+    private function GetFormActions()
+    {
         $formActions = [];
-        $formActions[] = ['type' => 'Button', 'caption' => 'Verify Configuration', 'onClick' => 'MediolaServer_VerifyConfiguration($id);'];
-        $formActions[] = ['type' => 'Button', 'caption' => 'Update status', 'onClick' => 'MediolaServer_UpdateStatus($id);'];
-        $formActions[] = ['type' => 'Button', 'caption' => 'Show Queue', 'onClick' => 'MediolaServer_ShowQueue($id);'];
 
-        $formStatus = [];
-        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
-        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
-        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
-        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
-        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
+        $formActions[] = [
+            'type'    => 'Button',
+            'caption' => 'Verify Configuration',
+            'onClick' => 'MediolaServer_VerifyConfiguration($id);'
+        ];
+        $formActions[] = [
+            'type'    => 'Button',
+            'caption' => 'Update status',
+            'onClick' => 'MediolaServer_UpdateStatus($id);'
+        ];
+        $formActions[] = [
+            'type'    => 'Button',
+            'caption' => 'Show Queue',
+            'onClick' => 'MediolaServer_ShowQueue($id);'
+        ];
 
-        $formStatus[] = ['code' => IS_INVALIDCONFIG, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid configuration)'];
-        $formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
-
-        return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        return $formActions;
     }
 
     public function UpdateStatus()
@@ -497,7 +569,7 @@ class MediolaServer extends IPSModule
         }
 
         if ($err != '') {
-            $this->SetStatus(IS_SERVERERROR);
+            $this->SetStatus(self::$IS_SERVERERROR);
             $this->LogMessage('url=' . $url . ' => err=' . $err, KL_WARNING);
             $this->SendDebug(__FUNCTION__, ' => err=' . $err, 0);
         } else {
