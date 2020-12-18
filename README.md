@@ -196,7 +196,7 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
-- 1.15 @ 18.12.2020 14:57
+- 1.15 @ 18.12.2020 14:57 (beta)
   - PHP_CS_FIXER_IGNORE_ENV=1 in github/workflows/style.yml eingefügt
 
 - 1.14 @ 23.07.2020 15:21
