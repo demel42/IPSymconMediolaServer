@@ -114,14 +114,17 @@ class MediolaServer extends IPSModule
             $sdata = $this->GetValue('Queue');
             if ($sdata != '') {
                 $ts = time();
+                $max_age = $this->ReadPropertyInteger('max_age');
                 $actions = json_decode($sdata, true);
                 foreach ($actions as $action) {
+                    if ($action['creation'] < time() - $max_age) {
+                        continue;
+                    }
                     if ($action['creation'] < $ts) {
                         $id = $action['id'];
                         $ts = $action['creation'];
                     }
                 }
-                $max_age = $this->ReadPropertyInteger('max_age');
                 $sec = $ts - time() + $max_age;
                 if ($sec < 1) {
                     $sec = 1;
@@ -158,7 +161,7 @@ class MediolaServer extends IPSModule
         $formElements[] = [
             'type'    => 'CheckBox',
             'name'    => 'module_disable',
-            'caption' => 'Instance is disabled'
+            'caption' => 'Disable instance'
         ];
         $formElements[] = [
             'type'    => 'ValidationTextBox',
@@ -920,6 +923,7 @@ class MediolaServer extends IPSModule
         $hostname = $this->ReadPropertyString('hostname');
         $task_ident = $this->ReadPropertyString('task_ident');
         $max_wait = $this->ReadPropertyInteger('max_wait');
+        $max_age = $this->ReadPropertyInteger('max_age');
 
         $r = true;
         $total_duration = 0;
@@ -946,8 +950,10 @@ class MediolaServer extends IPSModule
                 }
                 $new_actions = [];
                 $n_unfinished = 0;
+                $ts = time() - $max_age;
+
                 foreach ($actions as $action) {
-                    if ($action['creation'] < time() - 60 * 60) {
+                    if ($action['creation'] < $ts) {
                         continue;
                     }
                     if (isset($action['microtime'])) {
@@ -970,8 +976,12 @@ class MediolaServer extends IPSModule
                     $new_actions[] = $action;
                 }
                 $sdata = $new_actions != [] ? json_encode($new_actions) : '';
-                $this->SetValue('Queue', $sdata);
-                $this->SetValue('UnfinishedActions', $n_unfinished);
+                if ($sdata != $this->GetValue('Queue')) {
+                    $this->SetValue('Queue', $sdata);
+                }
+                if ($n_unfinished != $this->GetValue('UnfinishedActions')) {
+                    $this->SetValue('UnfinishedActions', $n_unfinished);
+                }
                 IPS_SemaphoreLeave($this->semaphoreID);
                 $ok = true;
             } else {
@@ -987,7 +997,7 @@ class MediolaServer extends IPSModule
                 break;
             }
             if ($id == '') {
-                $this->SendDebug(__FUNCTION__, 'no more pending id\'s => abort', 0);
+                $this->SendDebug(__FUNCTION__, 'no more pending id\'s => finish', 0);
                 break;
             }
             if ($waiting) {
@@ -1156,25 +1166,32 @@ class MediolaServer extends IPSModule
                                 case VARIABLETYPE_BOOLEAN:
                                     switch (strtolower($value)) {
                                         case 'on':
-                                            $v = true;
+                                            $bval = true;
                                             break;
                                         case 'off':
-                                            $v = false;
+                                            $bval = false;
                                             break;
                                         default:
-                                            $v = boolval($value);
+                                            $bval = boolval($value);
                                             break;
                                     }
-                                    SetValueBoolean($objID, $v);
+                                    $this->SendDebug(__FUNCTION__, 'SetValueBoolean(' . $objID . ', ' . $bval . ')', 0);
+                                    SetValueBoolean($objID, $bval);
                                     break;
                                 case VARIABLETYPE_INTEGER:
-                                    SetValueInteger($objID, $value);
+                                    $ival = intval($value);
+                                    $this->SendDebug(__FUNCTION__, 'SetValueInteger(' . $objID . ', ' . $ival . ')', 0);
+                                    SetValueInteger($objID, $ival);
                                     break;
                                 case VARIABLETYPE_FLOAT:
-                                    SetValueFloat($objID, $value);
+                                    $fval = floatval($value);
+                                    $this->SendDebug(__FUNCTION__, 'SetValueFloat(' . $objID . ', ' . $fval . ')', 0);
+                                    SetValueFloat($objID, $fval);
                                     break;
                                 case VARIABLETYPE_STRING:
-                                    SetValueString($objID, $value);
+                                    $sval = strval($value);
+                                    $this->SendDebug(__FUNCTION__, 'SetValueString(' . $objID . ', "' . $sval . '")', 0);
+                                    SetValueString($objID, $sval);
                                     break;
                                 default:
                                     $this->SendDebug(__FUNCTION__, 'unsupported type of varіable ' . print_r($var, true), 0);

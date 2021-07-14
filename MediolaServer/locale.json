@@ -1,8 +1,7 @@
 {
 	"translations": {
 		"de": {
-			"Instance is disabled": "Instanz ist deaktiviert",
-			"Instance is inactive": "Instanz ist inaktiv",
+			"Disable instance": "Instanz deaktivieren",
 
 			"Hostname": "Hostname",
 			"Port is 80 for the Gateway and typically 8088 for the NEO Server": "Port ist 80 für den Gateway and typischerweise 8088 für den NEO Server",
@@ -60,7 +59,9 @@
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",
+			"Instance is deleted": "Instanz wird gelöscht",
 			"Instance is inactive": "Instanz ist inaktiv",
+			"Instance is not created": "Instanz wurde nicht erzeugt",
 
 			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
 			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)"
