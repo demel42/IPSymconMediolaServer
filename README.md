@@ -136,7 +136,7 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 | Eigenschaft                 | Typ     | Standardwert   | Beschreibung |
 | :-------------------------- | :------ | :------------- | :----------- |
-| Instanz ist deaktiviert     | boolean | false          | Instanz temporär deaktivieren |
+| Instanz deaktivieren        | boolean | false          | Instanz temporär deaktivieren |
 |                             |         |                | |
 | Hostname                    | string  |                | Namen oder IP des Gateway / NEO-Server |
 | Port                        | integer | 80             | Http-Port, für den Gateway ist das 80, für den NEO Server typischerweise 8088 |
