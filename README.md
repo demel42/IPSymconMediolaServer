@@ -196,6 +196,10 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
+- 1.16 @ 13.08.2021 18:00
+  - Anpassungen für IPS 6
+    - IPS_LogMessage(...) ersetzt durch $this->LogMessage(..., KL_MESSAGE);
+
 - 1.15 @ 14.07.2021 18:44
   - PHP_CS_FIXER_IGNORE_ENV=1 in github/workflows/style.yml eingefügt
   - Schalter "Instanz ist deaktiviert" umbenannt in "Instanz deaktivieren"

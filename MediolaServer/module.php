@@ -606,7 +606,7 @@ class MediolaServer extends IPSModule
         }
         $s = 'call task \'' . $ident . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
-        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        $this->LogMessage($s, KL_MESSAGE);
         return $r;
     }
 
@@ -663,7 +663,7 @@ class MediolaServer extends IPSModule
         $s = 'set var adr=' . $adr . ', sval=\'' . $sval . '\', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
         $s = 'set var \'' . $adr . '\' to value \'' . $sval . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        $this->LogMessage($s, KL_MESSAGE);
         return $r;
     }
 
@@ -676,7 +676,7 @@ class MediolaServer extends IPSModule
         $s = 'set var adr=' . $adr . ', bval=' . ($bval ? 'true' : 'false') . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
         $s = 'set var \'' . $adr . '\' to value \'' . ($bval ? 'true' : 'false') . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        $this->LogMessage($s, KL_MESSAGE);
         return $r;
     }
 
@@ -687,14 +687,14 @@ class MediolaServer extends IPSModule
         $value = $this->encode_num($ival);
         if ($value == false) {
             $s = 'unable to set var \'' . $adr . '\' to value \'' . $ival . '\' on ' . $hostname . ' => invalid number or outside of range';
-            IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+            $this->LogMessage($s, KL_MESSAGE);
             return false;
         }
         $r = $this->setVal($adr, 'INT', $value);
         $s = 'set var adr=' . $adr . ', ival=' . $ival . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
         $s = 'set var \'' . $adr . '\' to value \'' . $ival . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        $this->LogMessage($s, KL_MESSAGE);
         return $r;
     }
 
@@ -706,14 +706,14 @@ class MediolaServer extends IPSModule
         $value = $this->encode_num($ival);
         if ($value == false) {
             $s = 'unable to set var \'' . $adr . '\' to value \'' . $ival . '\' on ' . $hostname . ' => invalid number or outside of range';
-            IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+            $this->LogMessage($s, KL_MESSAGE);
             return false;
         }
         $r = $this->setVal($adr, 'FLOAT', $value);
         $s = 'set var adr=' . $adr . ', fval=' . $fval . ', value=\'' . $value . '\', host=' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
         $this->SendDebug(__FUNCTION__, $s, 0);
         $s = 'set var \'' . $adr . '\' to value \'' . $fval . '\' on ' . $hostname . ' => ' . ($r ? 'succeed' : 'failed');
-        IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, $s);
+        $this->LogMessage($s, KL_MESSAGE);
         return $r;
     }
 
@@ -1010,7 +1010,7 @@ class MediolaServer extends IPSModule
                         $s .= ($s != '' ? ', ' : '') . $key . '=' . $ac['data'][$key];
                     }
                 }
-                IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'trigger action: id=' . $id . ', ' . $s);
+                $this->LogMessage('trigger action: id=' . $id . ', ' . $s, KL_MESSAGE);
                 $r = $this->CallTask($task_ident);
                 $this->SendDebug(__FUNCTION__, 'call task' . ': id=' . $id . ', action=' . print_r($ac, true) . ', r=' . $r, 0);
                 break;
@@ -1073,7 +1073,7 @@ class MediolaServer extends IPSModule
                     IPS_SemaphoreLeave($this->semaphoreID);
                     $ret = $data != '' ? json_encode($data) : '';
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', action=' . print_r($ac, true), 0);
-                    IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', data=' . $ret);
+                    $this->LogMessage($mode . '-reply: id=' . $id . ', data=' . $ret, KL_MESSAGE);
                 } else {
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ': sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 }
@@ -1117,7 +1117,7 @@ class MediolaServer extends IPSModule
                     if ($err != '') {
                         $this->LogMessage('task failed: err=' . $ac['err'] . ', action=' . print_r($ac, true), KL_WARNING);
                     }
-                    IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', status=' . $status . ($err != '' ? ', err=' . $err : ''));
+                    $this->LogMessage($mode . '-reply: id=' . $id . ', status=' . $status . ($err != '' ? ', err=' . $err : ''), KL_MESSAGE);
                 } else {
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ': sempahore ' . $this->semaphoreID . ' is not accessable', 0);
                 }
@@ -1155,7 +1155,7 @@ class MediolaServer extends IPSModule
                     $this->SetValue('UnfinishedActions', $n_unfinished);
                     IPS_SemaphoreLeave($this->semaphoreID);
                     $this->SendDebug(__FUNCTION__, 'mode=' . $mode . ', id=' . $id . ', status=' . $status . ', value=' . $value . ', action=' . print_r($ac, true), 0);
-                    IPS_LogMessage(__CLASS__ . '::' . __FUNCTION__, 'reply ' . $mode . ': id=' . $id . ', status=' . $status . ', value=' . $value);
+                    $this->LogMessage($mode . '-reply: id=' . $id . ', status=' . $status . ', value=' . $value, KL_MESSAGE);
 
                     if (isset($ac['data']['objID'])) {
                         $objID = $ac['data']['objID'];
