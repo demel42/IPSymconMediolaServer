@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/CommonStubs/common.php'; // globale Funktionen
 require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
 
 class MediolaServer extends IPSModule
 {
-    use MediolaServerCommonLib;
+    use StubsCommonLib;
     use MediolaServerLocalLib;
 
     private $semaphoreID = __CLASS__;
@@ -41,14 +41,31 @@ class MediolaServer extends IPSModule
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
-    // Inspired by module SymconTest/HookServe
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    private function CheckConfiguration()
     {
-        parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
+        $s = '';
+        $r = [];
 
-        if ($Message == IPS_KERNELMESSAGE && $Data[0] == KR_READY) {
-            $this->RegisterHook('/hook/MediolaServer');
+        $hostname = $this->ReadPropertyString('hostname');
+        if ($hostname == '') {
+            $this->SendDebug(__FUNCTION__, '"hostname" is empty', 0);
+            $r[] = $this->Translate('Hostname is missing');
         }
+
+        $port = $this->ReadPropertyInteger('port');
+        if ($port == 0) {
+            $this->SendDebug(__FUNCTION__, '"port" is empty', 0);
+            $r[] = $this->Translate('Port is missing');
+        }
+
+        if ($r != []) {
+            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
+            foreach ($r as $p) {
+                $s .= '- ' . $p . PHP_EOL;
+            }
+        }
+
+        return $s;
     }
 
     public function ApplyChanges()
@@ -63,11 +80,6 @@ class MediolaServer extends IPSModule
         $this->MaintainVariable('BootTime', $this->Translate('Boot time'), VARIABLETYPE_INTEGER, '~UnixTimestamp', $vpos++, true);
         $this->MaintainVariable('Status', $this->Translate('State'), VARIABLETYPE_BOOLEAN, '~Alert.Reversed', $vpos++, true);
 
-        $hostname = $this->ReadPropertyString('hostname');
-        $port = $this->ReadPropertyInteger('port');
-        $accesstoken = $this->ReadPropertyString('accesstoken');
-        $password = $this->ReadPropertyString('password');
-
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
             $this->SetTimerInterval('UpdateStatus', 0);
@@ -75,14 +87,13 @@ class MediolaServer extends IPSModule
             return;
         }
 
-        if ($hostname == '' || $port == 0) {
+        if ($this->CheckConfiguration() != false) {
             $this->SetStatus(self::$IS_INVALIDCONFIG);
-        } else {
-            $this->SetStatus(IS_ACTIVE);
+            return;
         }
 
-        // Inspired by module SymconTest/HookServe
-        // Only call this in READY state. On startup the WebHook instance might not be available yet
+        $this->SetStatus(IS_ACTIVE);
+
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->RegisterHook('/hook/MediolaServer');
             $this->UpdateStatus();
@@ -90,6 +101,15 @@ class MediolaServer extends IPSModule
 
         $this->SetUpdateInterval();
         $this->SetTimer();
+    }
+
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
+
+        if ($Message == IPS_KERNELMESSAGE && $Data[0] == KR_READY) {
+            $this->RegisterHook('/hook/MediolaServer');
+        }
     }
 
     protected function SetUpdateInterval()
@@ -105,7 +125,7 @@ class MediolaServer extends IPSModule
         $this->SetTimer();
     }
 
-    public function SetTimer()
+    private function SetTimer()
     {
         $n = $this->GetValue('UnfinishedActions');
         if ($n) {
@@ -138,25 +158,20 @@ class MediolaServer extends IPSModule
         $this->SetTimerInterval('Cycle', $msec);
     }
 
-    public function GetConfigurationForm()
-    {
-        $formElements = $this->GetFormElements();
-        $formActions = $this->GetFormActions();
-        $formStatus = $this->GetFormStatus();
-
-        $form = json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
-        if ($form == '') {
-            $this->SendDebug(__FUNCTION__, 'json_error=' . json_last_error_msg(), 0);
-            $this->SendDebug(__FUNCTION__, '=> formElements=' . print_r($formElements, true), 0);
-            $this->SendDebug(__FUNCTION__, '=> formActions=' . print_r($formActions, true), 0);
-            $this->SendDebug(__FUNCTION__, '=> formStatus=' . print_r($formStatus, true), 0);
-        }
-        return $form;
-    }
-
     private function GetFormElements()
     {
         $formElements = [];
+
+        @$s = $this->CheckConfiguration();
+        if ($s != '') {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => $s
+            ];
+            $formElements[] = [
+                'type'    => 'Label',
+            ];
+        }
 
         $formElements[] = [
             'type'    => 'CheckBox',
@@ -166,7 +181,7 @@ class MediolaServer extends IPSModule
         $formElements[] = [
             'type'    => 'ValidationTextBox',
             'name'    => 'hostname',
-            'caption' => 'Hostname'
+            'caption' => 'Hostname',
         ];
         $formElements[] = [
             'type'    => 'Label',
@@ -175,48 +190,45 @@ class MediolaServer extends IPSModule
         $formElements[] = [
             'type'    => 'NumberSpinner',
             'name'    => 'port',
-            'caption' => 'Port'
+            'caption' => 'Port',
         ];
 
         $formElements[] = [
             'type'    => 'ValidationTextBox',
             'name'    => 'accesstoken',
-            'caption' => 'Accesstoken'
+            'caption' => 'Accesstoken',
         ];
         $formElements[] = [
             'type'    => 'ValidationTextBox',
             'name'    => 'password',
-            'caption' => 'Password'
+            'caption' => 'Password',
         ];
 
         $formElements[] = [
             'type'    => 'ValidationTextBox',
             'name'    => 'task_ident',
-            'caption' => 'Ident of mediola-task'
+            'caption' => 'Ident of mediola-task',
         ];
         $formElements[] = [
             'type'    => 'NumberSpinner',
             'name'    => 'max_age',
-            'caption' => 'Max. age of queue'
+            'suffix'  => 'Seconds',
+            'caption' => 'Maximum age of queue-entries',
         ];
         $formElements[] = [
             'type'    => 'NumberSpinner',
+            'minimum' => 0,
+            'suffix'  => 'Seconds',
             'name'    => 'max_wait',
-            'caption' => 'Max. wait for reply'
+            'caption' => 'Maximum wait for reply',
         ];
 
         $formElements[] = [
-            'type'    => 'Label',
-            'caption' => ''
-        ];
-        $formElements[] = [
-            'type'    => 'Label',
-            'caption' => 'Update status every X minutes'
-        ];
-        $formElements[] = [
             'type'    => 'NumberSpinner',
+            'minimum' => 0,
+            'suffix'  => 'Minutes',
             'name'    => 'update_interval',
-            'caption' => 'Minutes'
+            'caption' => 'Update status interval',
         ];
 
         return $formElements;
@@ -242,13 +254,39 @@ class MediolaServer extends IPSModule
             'onClick' => 'MediolaServer_ShowQueue($id);'
         ];
 
+        /*
+            /getLogs
+            /cmd?XC_FNC=GetSI&at=null
+
+         */
+
+        $formActions[] = $this->GetInformationForm();
+        $formActions[] = $this->GetReferencesForm();
+
         return $formActions;
+    }
+
+    public function RequestAction($Ident, $Value)
+    {
+        if ($this->CommonRequestAction($Ident, $Value)) {
+            return;
+        }
+
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            return;
+        }
+
+        switch ($Ident) {
+            default:
+                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $Ident, 0);
+                break;
+        }
     }
 
     public function UpdateStatus()
     {
-        $inst = IPS_GetInstance($this->InstanceID);
-        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+        if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return;
         }
@@ -290,10 +328,9 @@ class MediolaServer extends IPSModule
 
     public function VerifyConfiguration()
     {
-        $inst = IPS_GetInstance($this->InstanceID);
-        if ($inst['InstanceStatus'] == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-            echo $this->translate('Instance is inactive') . PHP_EOL;
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            echo $this->GetStatusText() . PHP_EOL;
             return;
         }
 
@@ -348,10 +385,9 @@ class MediolaServer extends IPSModule
 
     public function ShowQueue()
     {
-        $inst = IPS_GetInstance($this->InstanceID);
-        if ($inst['InstanceStatus'] == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-            echo $this->translate('Instance is inactive') . PHP_EOL;
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            echo $this->GetStatusText() . PHP_EOL;
             return;
         }
 
@@ -468,7 +504,6 @@ class MediolaServer extends IPSModule
         echo $msg;
     }
 
-    // Inspired from module SymconTest/HookServe
     protected function ProcessHookData()
     {
         $root = realpath(__DIR__);
@@ -492,9 +527,8 @@ class MediolaServer extends IPSModule
 
     private function do_HttpRequest($cmd, $args)
     {
-        $inst = IPS_GetInstance($this->InstanceID);
-        if ($inst['InstanceStatus'] == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
             return;
         }
 
@@ -867,6 +901,15 @@ class MediolaServer extends IPSModule
             $this->SetValue('Queue', $sdata);
             $this->SetValue('UnfinishedActions', $n_unfinished);
             IPS_SemaphoreLeave($this->semaphoreID);
+
+            $s = '';
+            $keys = ['mode', 'room', 'device', 'action', 'value', 'group', 'macro', 'variable'];
+            foreach ($keys as $key) {
+                if (isset($action['data'][$key])) {
+                    $s .= ($s != '' ? ', ' : '') . $key . '=' . $action['data'][$key];
+                }
+            }
+            $this->LogMessage('run action: id=' . $new_id . ', data=' . $s, KL_MESSAGE);
         } else {
             $this->SendDebug(__FUNCTION__, 'sempahore ' . $this->semaphoreID . ' is not accessable', 0);
         }
@@ -918,7 +961,7 @@ class MediolaServer extends IPSModule
         return $this->RunAction(json_encode($data));
     }
 
-    public function CheckAction()
+    private function CheckAction()
     {
         $hostname = $this->ReadPropertyString('hostname');
         $task_ident = $this->ReadPropertyString('task_ident');
@@ -1211,29 +1254,6 @@ class MediolaServer extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'unknown mode \'' . $mode . '\'', 0);
                 break;
         }
-    }
-
-    public function GetQueue()
-    {
-        return $this->GetValue('Queue');
-    }
-
-    public function GetAction(int $id)
-    {
-        $ret = '';
-
-        $sdata = $this->GetValue('Queue');
-        if ($sdata != '') {
-            $actions = json_decode($sdata, true);
-            foreach ($actions as $action) {
-                if ($action['id'] == $id) {
-                    $ret = $action;
-                    break;
-                }
-            }
-        }
-
-        return $ret;
     }
 
     public function GetActionStatus(int $id, int $max_wait)

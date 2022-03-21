@@ -33,7 +33,7 @@ Man könnte natürlich für jede Funktion ein eigenen Task machen, aber das ist 
 
 Daher habe ich ein Interface geschaffen, das über einen generellen Task auf dem _MediolaServer_ jede dort verfügbaren Geräte-Aktion aufrufen, jeden Gerätes-Status abrufen und auch jedes Makro auslösen kann.
 
-Der Ablauf ist we folgt
+Der Ablauf ist wie folgt
  - Aufruf des o.g. generellen Task auf dem _MediolaServer_
  - dieser ruft ein WebHook auf dem IPS auf (_query_), als Antwort auf diese Query liefert IPS die Steuerinformationen
  - je mach Funktion wird dann 
@@ -87,7 +87,7 @@ Weiterhin muss ein Task angelegt werden, das als Auslöser _HTTP_ vorsieht und d
 ## 4. Funktionsreferenz
 
 `bool function MediolaServer_CallTask(int $InstanzID, string $args)`<br>
-Aufruf eine Tasks auf dem _MediolaServer_. _args_ ist die json-kodierte Liste des (bzw. der) Schlüssel mit dem Wert aus dem Blockeditor - Format so:
+Aufruf eines Tasks auf dem _MediolaServer_. _args_ ist die json-kodierte Liste des (bzw. der) Schlüssel mit dem Wert aus dem Blockeditor - Format so:
 ```
 $args = ['test' => '1'];
 
@@ -119,7 +119,7 @@ Rückgabewert ist die ID der Aktion.
 Ergebnis eines vorherigen Task-Aufrufs. Die Funktion wartet maximal bis _max_wait_ Sekunden; ist das Ergebnis ein leerer String, ist die Funktion noch nicht abgewickelt.
 
 `bool MediolaServer_SetValueString(int $InstanzID, string $adr, string $sval)`<br>
-`bool MediolaServer_SetValueBoolean(int $InstanzID, string $adr, boolean $bval)`<br>
+`bool MediolaServer_SetValueBoolean(int $InstanzID, string $adr, bool $bval)`<br>
 `bool MediolaServer_SetValueInteger(int $InstanzID, string $adr, int $ival)`<br>
 `bool MediolaServer_SetValueFloat(int $InstanzID, string $adr, float $fval)`<br>
 Setzen von Variablenwerten auf dem _MediolaServer_, die _adr_ ist die im Gerätemanager angegebene Adresse der Variablen.
@@ -195,6 +195,11 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 `MediolaServer_ExecuteMakro(4711, 'Aussenleuchten', 'Ausschalten', false);`
 
 ## 7. Versions-Historie
+
+- 1.17 @ 21.03.2022 16:55 
+  - libs/common.php -> CommonStubs
+  - Anzeige der Modul/Bibliotheks-Informationen
+  - Möglichkeit der Anzeige der Instanz-Referenzen
 
 - 1.16 @ 13.08.2021 18:00
   - Anpassungen für IPS 6

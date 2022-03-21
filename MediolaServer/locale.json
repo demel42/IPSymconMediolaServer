@@ -3,15 +3,20 @@
 		"de": {
 			"Disable instance": "Instanz deaktivieren",
 
+			"Hostname is mssing": "Hostname fehlt",
+			"Port is missing": "Port ist nicht angegeben",
+			"The following points of the configuration are incorrect": "Die folgenden Punkte der Konfiguration sind fehlerhaft",
+
 			"Hostname": "Hostname",
 			"Port is 80 for the Gateway and typically 8088 for the NEO Server": "Port ist 80 für den Gateway and typischerweise 8088 für den NEO Server",
 			"Port": "Port",
 			"Accesstoken": "Accesstoken",
 			"Password": "Passwort",
 			"Ident of mediola-task": "Schlüssel des Mediola-Tasks",
-			"Max. age of queue": "max. Alter der Queue",
-			"Max. wait for reply": "max. Wartezeit",
-			"Update status every X minutes": "Status alle X Minuten aktualisieren",
+			"Maximum age of queue-entries": "maximales Alter eines Queue-Eintrags",
+			"Maximum wait for reply": "maximale Wartezeit auf Antwort",
+			"Update status interval": "Aktualisierungsintervall",
+			"Seconds": "Sekunden",
 			"Minutes": "Minuten",
 
 			"Verify Configuration": "Konfigururation prüfen",
@@ -57,12 +62,35 @@
 			"variable": "Variable",
 			"waiting": "wartend",
 
+			"Information": "Information",
+
+			"Category": "Kategorie",
+			"Instance": "Instanz",
+			"Variable": "Variable",
+			"Script": "Skript",
+			"Event": "Ereignis",
+			"Medium": "Medium",
+			"Link": "Verknüpfung",
+			"PHP script": "PHP-Skript",
+			"Flow plan": "Ablaufplan",
+			"Triggered event": "Ausgelöstes Ereignis",
+			"Cyclic event": "Zyklisches Ereignis",
+			"Scheduled event": "Geplantes Ereignis",
+			"References": "Referenzen",
+			"by instance used objects": "durch die Instanz verwendete Objekte",
+			"Objects using the instance": "Objekte, die die Instanz verwenden",
+			"Referenced statusvariables": "referenzierte Statusvariablen",
+			"Ident": "Ident",
+			"Object": "Objekt",
+			"Area": "Bereich",
+			"Name": "Bezeichnung",
+			"Open object": "Objekt öffnen",
+
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",
 			"Instance is deleted": "Instanz wird gelöscht",
 			"Instance is inactive": "Instanz ist inaktiv",
 			"Instance is not created": "Instanz wurde nicht erzeugt",
-
 			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
 			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)"
 		}
