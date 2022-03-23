@@ -3,7 +3,7 @@
 		"de": {
 			"Disable instance": "Instanz deaktivieren",
 
-			"Hostname is mssing": "Hostname fehlt",
+			"Hostname is missing": "Hostname fehlt",
 			"Port is missing": "Port ist nicht angegeben",
 			"The following points of the configuration are incorrect": "Die folgenden Punkte der Konfiguration sind fehlerhaft",
 
@@ -19,7 +19,7 @@
 			"Seconds": "Sekunden",
 			"Minutes": "Minuten",
 
-			"Verify Configuration": "Konfigururation prüfen",
+			"Verify Configuration": "Konfiguration prüfen",
 			"Update status": "Status aktualisieren",
 			"Show Queue": "Queue anzeigen",
 			"Module description": "Modulbeschreibung",

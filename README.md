@@ -196,7 +196,7 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
-- 1.17 @ 21.03.2022 16:55 
+- 1.17 @ 23.03.2022 10:14 
   - libs/common.php -> CommonStubs
   - Anzeige der Modul/Bibliotheks-Informationen
   - Möglichkeit der Anzeige der Instanz-Referenzen
