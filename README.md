@@ -196,6 +196,9 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
+- 1.17.1 @ 04.04.2022 16:44 
+  - nach HTTP-Error zyklisch neu versuchen
+
 - 1.17 @ 23.03.2022 10:14 
   - libs/common.php -> CommonStubs
   - Anzeige der Modul/Bibliotheks-Informationen

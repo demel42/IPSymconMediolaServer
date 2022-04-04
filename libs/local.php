@@ -33,7 +33,7 @@ trait MediolaServerLocalLib
             case IS_ACTIVE:
                 $class = self::$STATUS_VALID;
                 break;
-            case self::$IS_INVALIDCONFIG:
+            case self::$IS_SERVERERROR:
                 $class = self::$STATUS_RETRYABLE;
                 break;
             default:
