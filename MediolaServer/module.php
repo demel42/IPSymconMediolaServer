@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../libs/CommonStubs/common.php'; // globale Funktionen
-require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
+require_once __DIR__ . '/../libs/common.php';
+require_once __DIR__ . '/../libs/local.php';
 
 class MediolaServer extends IPSModule
 {
-    use StubsCommonLib;
+    use MediolaServer\StubsCommonLib;
     use MediolaServerLocalLib;
 
     private $semaphoreID = __CLASS__;
