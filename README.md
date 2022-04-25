@@ -196,6 +196,11 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
+- 1.18 @ 25.04.2022 16:33
+  - Übersetzung vervollständigt
+  - Implememtierung einer Update-Logik
+  - diverse interne Änderungen
+
 - 1.17.2 @ 16.04.2022 12:00
   - potentieller Namenskonflikt behoben (trait CommonStubs)
   - Aktualisierung von submodule CommonStubs

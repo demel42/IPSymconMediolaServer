@@ -32,18 +32,20 @@ class MediolaServer extends IPSModule
         // maximales Wartezeit eines Queue-Eintrags nach Task-Aufruf
         $this->RegisterPropertyInteger('max_wait', 10);
 
-        $this->RegisterTimer('Cycle', 0, 'MediolaServer_Cycle(' . $this->InstanceID . ');');
-
         $this->RegisterPropertyInteger('update_interval', '5');
 
-        $this->RegisterTimer('UpdateStatus', 0, 'MediolaServer_UpdateStatus(' . $this->InstanceID . ');');
+        $this->RegisterPropertyString('hook', '/hook/MediolaServer');
+
+        $this->RegisterAttributeString('UpdateInfo', '');
+
+        $this->RegisterTimer('UpdateStatus', 0, $this->GetModulePrefix() . '_UpdateStatus(' . $this->InstanceID . ');');
+        $this->RegisterTimer('Cycle', 0, $this->GetModulePrefix() . '_Cycle(' . $this->InstanceID . ');');
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
-    private function CheckConfiguration()
+    private function CheckModuleConfiguration()
     {
-        $s = '';
         $r = [];
 
         $hostname = $this->ReadPropertyString('hostname');
@@ -58,19 +60,41 @@ class MediolaServer extends IPSModule
             $r[] = $this->Translate('Port is missing');
         }
 
-        if ($r != []) {
-            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
-            foreach ($r as $p) {
-                $s .= '- ' . $p . PHP_EOL;
-            }
+        $hook = $this->ReadPropertyString('hook');
+        if ($hook != '' && $this->HookIsUsed($hook)) {
+            $this->SendDebug(__FUNCTION__, '"hook" is already used', 0);
+            $r[] = $this->Translate('Webhook is already used');
         }
 
-        return $s;
+        return $r;
     }
 
     public function ApplyChanges()
     {
         parent::ApplyChanges();
+
+        $this->MaintainReferences();
+
+        if ($this->CheckPrerequisites() != false) {
+            $this->SetTimerInterval('UpdateStatus', 0);
+            $this->SetTimerInterval('Cycle', 0);
+            $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
+            return;
+        }
+
+        if ($this->CheckUpdate() != false) {
+            $this->SetTimerInterval('UpdateStatus', 0);
+            $this->SetTimerInterval('Cycle', 0);
+            $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
+            return;
+        }
+
+        if ($this->CheckConfiguration() != false) {
+            $this->SetTimerInterval('UpdateStatus', 0);
+            $this->SetTimerInterval('Cycle', 0);
+            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            return;
+        }
 
         $vpos = 0;
         $this->MaintainVariable('Queue', $this->Translate('CallBack-Queue'), VARIABLETYPE_STRING, '', $vpos++, true);
@@ -83,32 +107,34 @@ class MediolaServer extends IPSModule
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
             $this->SetTimerInterval('UpdateStatus', 0);
-            $this->SetStatus(IS_INACTIVE);
-            return;
-        }
-
-        if ($this->CheckConfiguration() != false) {
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            $this->SetTimerInterval('Cycle', 0);
+            $this->SetStatus(self::$IS_DEACTIVATED);
             return;
         }
 
         $this->SetStatus(IS_ACTIVE);
 
         if (IPS_GetKernelRunlevel() == KR_READY) {
-            $this->RegisterHook('/hook/MediolaServer');
-            $this->UpdateStatus();
+            $hook = $this->ReadPropertyString('hook');
+            if ($hook != '') {
+                $this->RegisterHook($hook);
+            }
+            $this->SetUpdateInterval();
+            $this->SetTimer();
         }
-
-        $this->SetUpdateInterval();
-        $this->SetTimer();
     }
 
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink($tstamp, $senderID, $message, $data)
     {
-        parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
+        parent::MessageSink($tstamp, $senderID, $message, $data);
 
-        if ($Message == IPS_KERNELMESSAGE && $Data[0] == KR_READY) {
-            $this->RegisterHook('/hook/MediolaServer');
+        if ($message == IPS_KERNELMESSAGE && $data[0] == KR_READY) {
+            $hook = $this->ReadPropertyString('hook');
+            if ($hook != '') {
+                $this->RegisterHook($hook);
+            }
+            $this->SetUpdateInterval();
+            $this->SetTimer();
         }
     }
 
@@ -160,17 +186,10 @@ class MediolaServer extends IPSModule
 
     private function GetFormElements()
     {
-        $formElements = [];
+        $formElements = $this->GetCommonFormElements('Mediola Server Gateway');
 
-        @$s = $this->CheckConfiguration();
-        if ($s != '') {
-            $formElements[] = [
-                'type'    => 'Label',
-                'caption' => $s
-            ];
-            $formElements[] = [
-                'type'    => 'Label',
-            ];
+        if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
+            return $formElements;
         }
 
         $formElements[] = [
@@ -178,6 +197,7 @@ class MediolaServer extends IPSModule
             'name'    => 'module_disable',
             'caption' => 'Disable instance'
         ];
+
         $formElements[] = [
             'type'    => 'ValidationTextBox',
             'name'    => 'hostname',
@@ -238,20 +258,29 @@ class MediolaServer extends IPSModule
     {
         $formActions = [];
 
+        if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
+            $formActions[] = $this->GetCompleteUpdateFormAction();
+
+            $formActions[] = $this->GetInformationFormAction();
+            $formActions[] = $this->GetReferencesFormAction();
+
+            return $formActions;
+        }
+
         $formActions[] = [
             'type'    => 'Button',
             'caption' => 'Verify Configuration',
-            'onClick' => 'MediolaServer_VerifyConfiguration($id);'
+            'onClick' => $this->GetModulePrefix() . '_VerifyConfiguration($id);'
         ];
         $formActions[] = [
             'type'    => 'Button',
             'caption' => 'Update status',
-            'onClick' => 'MediolaServer_UpdateStatus($id);'
+            'onClick' => $this->GetModulePrefix() . '_UpdateStatus($id);'
         ];
         $formActions[] = [
             'type'    => 'Button',
             'caption' => 'Show Queue',
-            'onClick' => 'MediolaServer_ShowQueue($id);'
+            'onClick' => $this->GetModulePrefix() . '_ShowQueue($id);'
         ];
 
         /*
@@ -260,15 +289,15 @@ class MediolaServer extends IPSModule
 
          */
 
-        $formActions[] = $this->GetInformationForm();
-        $formActions[] = $this->GetReferencesForm();
+        $formActions[] = $this->GetInformationFormAction();
+        $formActions[] = $this->GetReferencesFormAction();
 
         return $formActions;
     }
 
-    public function RequestAction($Ident, $Value)
+    public function RequestAction($ident, $value)
     {
-        if ($this->CommonRequestAction($Ident, $Value)) {
+        if ($this->CommonRequestAction($ident, $value)) {
             return;
         }
 
@@ -277,9 +306,9 @@ class MediolaServer extends IPSModule
             return;
         }
 
-        switch ($Ident) {
+        switch ($ident) {
             default:
-                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $Ident, 0);
+                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $ident, 0);
                 break;
         }
     }
