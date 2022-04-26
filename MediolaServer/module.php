@@ -76,22 +76,22 @@ class MediolaServer extends IPSModule
         $this->MaintainReferences();
 
         if ($this->CheckPrerequisites() != false) {
-            $this->SetTimerInterval('UpdateStatus', 0);
-            $this->SetTimerInterval('Cycle', 0);
+            $this->MaintainTimer('UpdateStatus', 0);
+            $this->MaintainTimer('Cycle', 0);
             $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
             return;
         }
 
         if ($this->CheckUpdate() != false) {
-            $this->SetTimerInterval('UpdateStatus', 0);
-            $this->SetTimerInterval('Cycle', 0);
+            $this->MaintainTimer('UpdateStatus', 0);
+            $this->MaintainTimer('Cycle', 0);
             $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
             return;
         }
 
         if ($this->CheckConfiguration() != false) {
-            $this->SetTimerInterval('UpdateStatus', 0);
-            $this->SetTimerInterval('Cycle', 0);
+            $this->MaintainTimer('UpdateStatus', 0);
+            $this->MaintainTimer('Cycle', 0);
             $this->SetStatus(self::$IS_INVALIDCONFIG);
             return;
         }
@@ -106,9 +106,9 @@ class MediolaServer extends IPSModule
 
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
-            $this->SetTimerInterval('UpdateStatus', 0);
-            $this->SetTimerInterval('Cycle', 0);
-            $this->SetStatus(self::$IS_DEACTIVATED);
+            $this->MaintainTimer('UpdateStatus', 0);
+            $this->MaintainTimer('Cycle', 0);
+            $this->SetStatus(IS_INACTIVE);
             return;
         }
 
@@ -142,7 +142,7 @@ class MediolaServer extends IPSModule
     {
         $min = $this->ReadPropertyInteger('update_interval');
         $msec = $min > 0 ? $min * 1000 * 60 : 0;
-        $this->SetTimerInterval('UpdateStatus', $msec);
+        $this->MaintainTimer('UpdateStatus', $msec);
     }
 
     public function Cycle()
@@ -181,7 +181,7 @@ class MediolaServer extends IPSModule
             }
         }
         $this->SendDebug(__FUNCTION__, 'unfinished actions=' . $n . ', msec=' . $msec, 0);
-        $this->SetTimerInterval('Cycle', $msec);
+        $this->MaintainTimer('Cycle', $msec);
     }
 
     private function GetFormElements()
