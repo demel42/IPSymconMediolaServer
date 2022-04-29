@@ -13,6 +13,15 @@ class MediolaServer extends IPSModule
     private $semaphoreID = __CLASS__;
     private $semaphoreTM = 250;
 
+    private $ModuleDir;
+
+    public function __construct(string $InstanceID)
+    {
+        parent::__construct($InstanceID);
+
+        $this->ModuleDir = __DIR__;
+    }
+
     public function Create()
     {
         parent::Create();
@@ -97,7 +106,7 @@ class MediolaServer extends IPSModule
         }
 
         $vpos = 0;
-        $this->MaintainVariable('Queue', $this->Translate('CallBack-Queue'), VARIABLETYPE_STRING, '', $vpos++, true);
+        $this->MaintainVariable('Queue', $this->Translate('Callback-Queue'), VARIABLETYPE_STRING, '', $vpos++, true);
         $this->MaintainVariable('UnfinishedActions', $this->Translate('Count of unfinished actions'), VARIABLETYPE_INTEGER, '', $vpos++, true);
         $this->MaintainVariable('Hardware', $this->Translate('Hardware'), VARIABLETYPE_STRING, '', $vpos++, true);
         $this->MaintainVariable('Firmware', $this->Translate('Firmware version'), VARIABLETYPE_STRING, '', $vpos++, true);

@@ -1,0 +1,10 @@
+{
+	"translations": {
+		"de": {
+			"__status__": "",
+			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)",
+
+			"__end__": ""
+		}
+	}
+}

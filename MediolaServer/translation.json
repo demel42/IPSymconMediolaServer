@@ -1,0 +1,78 @@
+{
+	"translations": {
+		"de": {
+			"Mediola Server Gateway": "Mediola Server Gateway",
+
+			"__function__": "CheckConfiguration",
+			"Hostname is missing": "Hostname fehlt",
+			"Port is missing": "Port ist nicht angegeben",
+			"Webhook is already used": "Webhook wird bereits verwendet",
+
+			"__elements__": "",
+			"Disable instance": "Instanz deaktivieren",
+
+			"Hostname": "Hostname",
+			"Port is 80 for the Gateway and typically 8088 for the NEO Server": "Port ist 80 für den Gateway and typischerweise 8088 für den NEO Server",
+			"Port": "Port",
+			"Accesstoken": "Accesstoken",
+			"Password": "Passwort",
+			"Ident of mediola-task": "Schlüssel des Mediola-Tasks",
+			"Maximum age of queue-entries": "maximales Alter eines Queue-Eintrags",
+			"Maximum wait for reply": "maximale Wartezeit auf Antwort",
+			"Update status interval": "Aktualisierungsintervall",
+			"Seconds": "Sekunden",
+			"Minutes": "Minuten",
+
+			"__variables__": "",
+			"Callback-Queue": "Callback-Queue",
+			"Count of unfinished actions": "Anzahl der offenen Aktionen",
+			"Hardware": "Hardware",
+			"Firmware version": "Firmware-Version",
+			"Boot time": "Startzeit",
+			"State": "Status",
+
+			"__actions__": "",
+			"Verify Configuration": "Konfiguration prüfen",
+			"Update status": "Status aktualisieren",
+			"Show Queue": "Queue anzeigen",
+
+			"__function__": "VerifyConfiguration",
+			"check succeeded": "Prüfung bestanden",
+			"Name": "Name",
+			"Firmware": "Firmware",
+			"Hardware": "Hardware",
+			"Boot time": "Startzeit",
+			"unknown type": "unbekannter Typ",
+			"unknown result": "unbekanntes Ergebnis",
+			"error": "Fehler",
+			"check failed": "Prüfung fehlgeschlagen",
+			"reason unknown": "unbekannter Grund",
+
+			"__function__": "ShowQueue",
+			"Information of callback-queue": "Information über die Callback-Queue",
+			"List of actions": "Liste der Aktionen",
+			"room": "Raum",
+			"device": "Gerät",
+			"action": "Aktion",
+			"value": "Wert",
+			"group": "Gruppe",
+			"macro": "Makro",
+			"variable": "Variable",
+			"id": "id",
+			"status": "Status",
+			"created": "angelegt",
+			"duration": "Dauer",
+			"pending": "anstehend",
+			"waiting": "wartend",
+			"overdue": "überfällig",
+			"done": "erledigt",
+			"ok": "ok",
+			"fail": "fehlgeschlagen",
+			"other": "andere",
+			"Count of actions": "Anzahl der Aktionen",
+			"no entries": "kein Eintrag",
+
+			"__end__": ""
+		}
+	}
+}
