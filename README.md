@@ -196,6 +196,9 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
+- 1.18.3 @ 01.05.2022 12:32
+  - Webhook besser prüfen
+
 - 1.18.2 @ 29.04.2022 17:45 
   - Überlagerung von Translate und Aufteilung von locale.json in 3 translation.json (Modul, libs und CommonStubs)
 

@@ -555,7 +555,7 @@ class MediolaServer extends IPSModule
 
         $pos = strpos($uri, '?');
         $baseuri = $pos ? substr($uri, 0, $pos) : $uri;
-        if ($baseuri == '/hook/MediolaServer') {
+        if ($baseuri == $this->ReadPropertyString('hook')) {
             $this->Callback($_GET);
             return;
         }
