@@ -196,6 +196,9 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
+- 1.18.4 @ 10.05.2022 15:06
+  - update submodule CommonStubs
+
 - 1.18.3 @ 01.05.2022 12:32
   - Webhook besser prüfen
 
