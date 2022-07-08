@@ -196,6 +196,13 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
+- 1.19 @ 08.07.2022 09:36
+  - einige Funktionen (GetFormElements, GetFormActions) waren fehlerhafterweise "protected" und nicht "private"
+  - interne Funktionen sind nun private und ggfs nur noch via IPS_RequestAction() erreichbar
+  - Fix: Angabe der Kompatibilität auf 6.2 korrigiert
+  - Verbesserung: IPS-Status wird nur noch gesetzt, wenn er sich ändert
+  - update submodule CommonStubs
+
 - 1.18.5 @ 17.05.2022 15:38
   - update submodule CommonStubs
     Fix: Absicherung gegen fehlende Objekte

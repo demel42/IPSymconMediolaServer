@@ -4,9 +4,9 @@
 	"name": "Mediola Gateway-Service",
 	"url": "https://github.com/demel42/IPSymconMediolaGateway",
 	"compatibility": {
-		"version": "6.0"
+		"version": "6.2"
 	},
-	"version": "1.18.5",
+	"version": "1.19",
 	"build": 0,
-	"date": 1652794739
+	"date": 1657265760
 }
