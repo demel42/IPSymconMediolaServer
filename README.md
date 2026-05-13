@@ -196,6 +196,10 @@ Abfrage von Variablenwerten des _MediolaServer_, die _adr_ ist die im Geräteman
 
 ## 7. Versions-Historie
 
+- 1.25 @ 11.05.2026 15:02
+  - Fix: Änderung von deprecated php code
+  - update submodule CommonStubs
+
 - 1.24 @ 27.03.2026 14:31
   - Fix: Anpassung für IPS 9
   - interne Änderung
